@@ -1,0 +1,47 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Login and signup",
+    "dateExported": "2026-04-25T09:05:04.958Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "fabd4558-a014-41d3-bd90-8080680ad002",
+            "colId": "41552585-5cf6-4643-ba33-6dcbdad62852",
+            "containerId": "",
+            "name": "signup",
+            "url": "https://8080-afabbcdfebdebabbaafadadbabcabfebaccfcccce.premiumproject.examly.io/user/signup",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2026-04-25T08:51:16.579Z",
+            "modified": "2026-04-25T09:03:35.333Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"userName\": \"beginner_user\",\n  \"email\": \"test@example.com\",\n  \"mobile\": \"9876543210\",\n  \"password\": \"Password@123\",\n  \"role\": \"Entrepreneur\",\n  \"securityAnswer\": \"Delhi Public School\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "6a02fa46-af55-41df-ace6-80fb0bc93df5",
+            "colId": "41552585-5cf6-4643-ba33-6dcbdad62852",
+            "containerId": "",
+            "name": "login",
+            "url": "https://8080-afabbcdfebdebabbaafadadbabcabfebaccfcccce.premiumproject.examly.io/user/login",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2026-04-25T08:57:37.866Z",
+            "modified": "2026-04-25T09:04:17.739Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\r\n  \"email\": \"test@example.com\",\r\n  \"password\": \"Password@123\"\r\n}",
+                "form": []
+            },
+            "tests": []
+        }
+    ]
+}

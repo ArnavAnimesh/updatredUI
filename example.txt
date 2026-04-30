@@ -1,0 +1,863 @@
+const express = require('express')
+const mongoose = require('mongoose')
+const userRouter = require('./routers/userRouter')
+const aiRouter = require('./routers/aiModelRouter')
+const port = 8080
+const app = express()
+
+app.use(express.json())
+
+const connectDB = async ()=>{
+    try {
+        await mongoose.connect('mongodb://localhost:27017/aiapp')
+        console.log('Mongo conneceted')
+    } catch (error) {   
+        console.log('failed to connect', erooor.message);
+    }
+}
+
+connectDB()
+
+app.use('/', userRouter)
+app.use('/', aiRouter)
+
+
+app.listen(port, ()=>{
+    console.log('listening on 8080');
+})
+
+
+
+const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
+const secret = 'aiSecretKey'
+
+const generateToken = (user)=>{
+    return jwt.sign({_id:user._id, role:user.role}, secret)
+}
+
+const validateToken = (req, res, next)=>{
+    try {
+        const token =  req.header("Authorization")
+        if(!token){
+            return res.status(400).json({message:"Authentication failed"})
+        }
+        const decode = jwt.verify(token, secret)
+        req.user = decode
+        next()
+    } catch (error) {
+        return res.status(400).json({message:"Authorization failed"})
+        
+    }
+}
+
+const checkRole =(role)=>(req, res, next)=>{
+    try {
+        if(req.user.role !== role){
+            return res.status(403).json({message:"Access denied"})
+        }
+        next()
+    } catch (error) {
+        return res.status(400).json({message:error.message})
+    }
+}
+
+const validateObject = (req, res)=>{
+    try {
+        const {id} = req.params
+        if(mongoose.isvalidobjectid(id)){
+            return res.status(500).json({message:error.message})
+        }
+    } catch (error) {
+        
+        return res.status(400).json({message:error.message})
+    }
+}
+
+module.exports = {validateToken, generateToken, checkRole, validateObject}
+
+
+
+
+
+    const monoose = require('mongoose')
+    const userSchema = new monoose.Schema({
+        firstName:{
+            type:String,
+            required: true,
+            trim:true
+        },
+        lastName:{
+            type:String,
+            required: true,
+            trim:true
+        },
+        email:{
+            type:String,
+            unique:true,
+            required:true,
+            validate:{
+                validator: function(v){
+                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+                },
+                message: (v)=> `${v.value} is not a valid email`
+            }
+        },
+        mobileNumber:{
+            type:String,
+            required:true,
+            validate:{
+                validator: function(v){
+                    return /^\d{10}$/.test(v)
+                },
+                message: (v)=> `${v.value} is not a valid mobile number`
+            }
+        },
+        role:{
+            type:String,
+            required:true,
+            enum:["admin", "viewer"]
+        },
+        password:{
+            type:String,
+            required:true,
+            minlength:6,
+            maxlength:255
+        }
+    }, {timestamps:true})
+    module.exports = monoose.model("User", userSchema,)
+
+
+
+
+
+    const monoose = require('mongoose')
+
+
+const aiSchema = new monoose.Schema({
+    modelName:{
+        type:String,
+        required:true,
+        trim:true,
+        maxlength:150
+    },
+    framework:{
+        type:String,
+        required:true,
+        trim:true
+    },
+    taskType:{
+        type:String,
+        required:true,
+        trim:true
+
+    },
+    version:{
+        type:String,
+        required:true,
+        validate:{
+            validator:function(v){
+                return /^\d+\.\d+\.\d+$/.test(v)
+            },
+            message:(v)=> `${v.value} is not a valid semver!.`
+        }
+    },
+    accuracy:{
+        type:Number,
+        required:true,
+        min:0,
+        max:100
+    },
+    parameters:{
+        type:Number,
+        required:true,
+        min:0
+    },
+    status:{
+        type:String,
+        enum:["Draft", "Active", "Deprecated", "Archived"],
+        default:"Draft"
+    },
+    idOpenSource:{
+        type:Boolean,
+        default:false
+    },
+    tags:{
+        type:[String]
+    },
+    deployedAt:{
+        type:Date
+    },
+    userId:{
+        type:String,
+        required:true,
+    }
+}, {timestamps:true})
+
+module.exports = monoose.model("AIModel", aiSchema)
+
+
+
+
+const express = require('express')
+const { addUser, getUserByUsernameAndPassword, getAllUsers } = require('../controllers/userController')
+const { validateToken, checkRole } = require('../middleware/authUtils')
+const userRouter = express.Router()
+
+userRouter.post('/register', addUser)
+userRouter.post('/login', getUserByUsernameAndPassword)
+userRouter.get('/users', validateToken, checkRole('admin'), getAllUsers)
+
+
+module.exports = userRouter
+
+
+
+
+
+const express = require('express')
+const { validateToken, checkRole } = require('../middleware/authUtils')
+const { addAIModel, getAllAIModels, getAIModelsByUser, getAIModelById } = require('../controllers/aiModelController')
+const aiRouter = express.Router()
+
+aiRouter.post('/aimodel', validateToken, checkRole('admin'), addAIModel)
+aiRouter.get('/aimodel', validateToken, getAllAIModels)
+aiRouter.get('/aimodel', validateToken, getAIModelsByUser)
+aiRouter.get('/aimodel/:id', validateToken, getAIModelById)
+aiRouter.put('/aimodel/:id', validateToken,checkRole('admin'), addAIModel)
+aiRouter.delete('/aimodel/:id', validateToken,checkRole('admin'), addAIModel)
+
+module.exports = aiRouter
+
+
+
+const { generateToken } = require("../middleware/authUtils")
+const User = require("../models/userModel")
+
+const addUser = async(req, res)=>{
+    try {
+        await User.create(req.body)
+        return res.status(200).json({message:"Success"})
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+    }
+}
+
+
+const getUserByUsernameAndPassword = async(req, res)=>{
+    try {
+        const {email, password} = req.body
+        const user = await User.findOne({email,password})
+        if(!user){
+            return res.status(200).json({message:"Invalid Credentials"}) 
+        }
+        const token = generateToken(user)
+        return res.status(200).json({message:"Success", token:token})
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+        
+    }
+}
+
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find()
+        return res.status(200).json(users)
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+module.exports = {addUser, getUserByUsernameAndPassword, getAllUsers}
+
+
+
+
+
+const { default: mongoose } = require("mongoose")
+const AIModel = require("../models/aiModelModel")
+
+const addAIModel = async(req, res)=>{
+    try {
+        const aiModel = await AIModel.create(req.body)
+        return res.status(200).json({message:"Succsess"})
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+        
+    }
+}
+
+const getAIModelById = async(req, res)=>{
+    try {
+        const {id} = req.params
+        const ai = await AIModel.findById(id)
+        if(!ai){
+            return res.status(404).json({message:"AI model not found"})
+        }
+        return res.status(200).json(ai)
+
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+        
+    }
+}
+const updateAIModel = async(req, res)=>{
+    try {
+        const {id} = req.params
+        const ai = await AIModel.findByIdAndUpdate(id, req.body)
+        if(!ai){
+            return res.status(404).json({message:"AI model not found"})
+        }
+        return res.status(200).json(ai)
+
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+        
+    }
+}
+const deleteAIModel = async(req, res)=>{
+    try {
+        const {id} = req.params
+        const ai = await AIModel.findByIdAndDelete(id)
+        if(!ai){
+            return res.status(404).json({message:"AI model not found"})
+        }
+        return res.status(200).json(ai)
+
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+        
+    }
+}
+
+// const getAllAIModels = async(req, res)=>{
+//     try {
+//         const {searchValue, sortValue, filters} = req.body
+//         let filter = {}
+//         let sortBy = {}
+
+//         if(searchValue){
+//             const regex  = new RegExp(searchValue, "i")
+//             filter = {$or:[
+//                 {modelName: regex},
+//                 {framework: regex},
+//                 {taskType: regex},
+//             ]}
+//         }
+
+//         if(filters && typeof filters == 'object')
+//         {
+//             filter={...filter, ...filters};
+//         }
+
+//         if(sortValue == 'createdAt'){
+//             sortBy.createdAt = 1
+//         }
+//         if(sortValue == 'accuracy'){
+//             sortBy.accuracy = 1
+//         }
+//         if(sortValue == 'deployedAt'){
+//             sortBy.deployedAt = 1
+//         }
+
+//         const users = await AIModel.find(filter).sort(sortBy)
+
+//         return res.status(200).json(users)
+
+//     } catch (error) {
+//         return res.status(500).json({message:error.message})
+        
+//     }
+// }
+
+
+
+const getAllAIModels = async(req, res)=>{
+    try {
+        const{searchValue, sortValue, filters} = req.body
+        let filter = {}
+        let sortBy ={}
+
+        if(searchValue){
+            const regex = new RegExp(searchValue, "i")
+            filter = {$or:[
+                {modelName:regex},
+                {framework:regex},
+                {taskType:regex}
+            ]}
+        }
+
+        if(filters){
+            filter = {...filter,...filters}
+        }
+
+
+        // if(filters){
+        //     filter.accuracy={$gte:60,$}
+        // }
+
+        if(sortValue === "accuracy") sortBy.accuracy = 1
+        if(sortValue === "deployedAt") sortBy.deployedAt = 1
+        if(sortValue === "createdAt") sortBy.createdAt = 1
+
+        const models = await AIModel.find(filter).sort(sortBy)
+        return res.status(200).json(models)
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+    }
+}
+
+
+const getAIModelsByUser = async(req, res)=>{
+    try {
+        const { userId,sortValue, } = req.body
+        let filter = {userId}
+        let sortBy = {}
+
+        if(sortValue == 'createdAt'){
+            sortBy.createdAt = 1
+        }
+        if(sortValue == 'accuracy'){
+            sortBy.accuracy = 1
+        }
+        if(sortValue == 'deployedAt'){
+            sortBy.deployedAt = 1
+        }
+
+        const users = await AIModel.find(filter).sort(sortBy)
+
+        return res.status(200).json(users)
+
+    } catch (error) {
+        return res.status(500).json({message:error.message})
+        
+    }
+}
+
+
+
+
+module.exports = {addAIModel, getAIModelById, updateAIModel, deleteAIModel, getAllAIModels,getAIModelsByUser}
+
+
+
+
+
+
+
+
+
+Front end
+
+
+
+
+
+import React, { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import AppointmentList from './components/AppointmentList'
+import AddAppointment from './components/AddAppointment'
+import AppointmentDetails from './components/AppointmentDetails'
+import axios from 'axios'
+import NavBar from './components/NavBar'
+
+function App() {
+  const [appointments, setAppointments] = useState([])
+
+  const getAppointments = async () => {
+    try {
+      const response = await axios.get('https://ide-daadebbc345320386bafeabbcbcbeone.premiumproject.examly.io/proxy/3001/appointments')
+      setAppointments(response.data)
+    } catch (error) {
+      console.log(error.message)
+    }
+    
+  }
+
+  const addAppointment = async (newObj) => {
+    try {
+      await axios.post('https://ide-daadebbc345320386bafeabbcbcbeone.premiumproject.examly.io/proxy/3001/appointments', newObj)
+      getAppointments()
+      return { success: true }
+    }
+    catch (error) {
+      console.log(error.message)
+      return { success: false }
+    }
+  }
+
+  const deleteAppointment = async (id) => {
+    try {
+      axios.delete(`https://ide-daadebbc345320386bafeabbcbcbeone.premiumproject.examly.io/proxy/3001/appointments/${id}`)
+      getAppointments()
+
+    } catch (error) {
+      console.log(error.message)
+
+    }
+  }
+
+  useEffect(() => {
+    getAppointments()
+  }, [])
+  console.log(appointments)
+
+  return (
+    <div>
+      <BrowserRouter>
+        <NavBar />
+        <Routes>
+          <Route path='/' element={<Navigate to="appointments" />} />
+          <Route path='/appointments' element={<AppointmentList
+            appointments={appointments}
+            getAppointments={getAppointments}
+            deleteAppointment={deleteAppointment}  />} />
+          <Route path='/appointments/add' element={<AddAppointment addAppointment={addAppointment}  />} />
+          <Route path='/appointments/:id' element={<AppointmentDetails 
+          />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+  )
+}
+
+export default App
+
+
+import React from 'react'
+import { Link } from 'react-router-dom'
+
+function NavBar() {
+    return (
+        <div>
+            <h1>Patient Appointment Management System</h1>
+            <nav>
+                <Link to='/appointments' >View Appointments</Link>
+                <Link to='/appointments/add' >Add New Appointment</Link>
+
+            </nav>
+        </div>
+    )
+}
+
+export default NavBar
+
+
+
+
+import React, { useState } from 'react'
+
+function AddAppointment({ addAppointment }) {
+    const [formData, setFormData] = useState({
+        patientName: '',
+        doctorName: '',
+        department: '',
+        appointmentDate: '',
+        timeSlot: '',
+        totalFees: '',
+        status: 'Scheduled'
+    })
+    const [errorMessage, setErrorMessage] = useState({})
+    const [successMessage, setSuccessMessage] = useState(null)
+
+    const handleInput = (e) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    }
+
+    const hadnleSubmit = async () => {
+        const errors = {}
+
+        if (!formData.patientName) {
+            errors.patientName = 'Patient Name is required'
+        }
+
+        if (!formData.doctorName) {
+            errors.doctorName = 'Doctor Name is required'
+        }
+
+        if (!formData.department) {
+            errors.department = 'Department is required'
+        }
+
+        if (!formData.appointmentDate) {
+            errors.appointmentDate = 'Appointment Date is required'
+        }
+
+        if (!formData.timeSlot) {
+            errors.timeSlot = 'Appointment Time is required'
+        }
+
+        if (!formData.totalFees) {
+            errors.totalFees = 'Total fees is required'
+        }
+
+        if (!formData.patientName ||
+            !formData.doctorName ||
+            !formData.department ||
+            !formData.appointmentDate ||
+            !formData.timeSlot ||
+            !formData.totalFees) {
+            errors.global = 'Please fill all required fields.'
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setErrorMessage(errors)
+            return
+        }
+
+        const obj = { ...formData, id: Date.now(), totalFees: Number(formData.totalFees) }
+        setFormData({
+            patientName: '',
+            doctorName: '',
+            department: '',
+            appointmentDate: '',
+            timeSlot: '',
+            totalFees: '',
+            status: 'Sheduled'
+        })
+
+        const { success } = await addAppointment(obj)
+
+        if (success) {
+            setSuccessMessage('Added successfully')
+        }
+        else {
+            setSuccessMessage('Something went wrong. Try again.')
+        }
+    }
+
+    return (
+        <div>
+
+            <div>
+                <label htmlFor="patientName">Patient Name: </label>
+                <input type="text"
+                    name='patientName'
+                    id='patientName'
+                    placeholder='Patient Name'
+                    value={formData.patientName}
+                    onChange={(e) => handleInput(e)} />
+                {errorMessage.patientName && <p>{errorMessage.patientName}</p>}
+            </div>
+
+            <div>
+                <label htmlFor="doctorName">Doctor Name: </label>
+                <input type="text"
+                    name='doctorName'
+                    id='doctorName'
+                    placeholder='Doctor Name'
+                    value={formData.doctorName}
+                    onChange={(e) => handleInput(e)} />
+                {errorMessage.doctorName && <p>{errorMessage.doctorName}</p>}
+
+
+            </div>
+
+            <div>
+                <label htmlFor="department"></label>
+                <select name="department" id="department" value={formData.department} onChange={(e) => handleInput(e)}>
+                    <option value="">--Select Department--</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Neurology">NeuroLogy</option>
+                    <option value="Orthopedics">Orthopedics</option>
+                    <option value="General">General</option>
+                </select>
+                {errorMessage.department && <p>{errorMessage.department}</p>}
+
+
+            </div>
+
+            <div>
+                <label htmlFor="appointmentDate">Appointment Date: </label>
+                <input type="date"
+                    name='appointmentDate'
+                    id='appointmentDate'
+                    value={formData.appointmentDate}
+                    onChange={(e) => handleInput(e)} />
+                {errorMessage.appointmentDate && <p>{errorMessage.appointmentDate}</p>}
+            </div>
+
+
+            <div>
+                <label htmlFor="timeSlot">Appointment Time: </label>
+                <input type="text"
+                    name='timeSlot'
+                    id='timeSlot'
+                    placeholder='Time Slot'
+                    value={formData.timeSlot}
+                    onChange={(e) => handleInput(e)} />
+                {errorMessage.timeSlot && <p>{errorMessage.timeSlot}</p>}
+
+            </div>
+
+            <div>
+                <label htmlFor="totalFees">Total Fees: </label>
+                <input type="number"
+                    name='totalFees'
+                    id='totalFees'
+                    placeholder='Total Fees'
+                    value={formData.totalFees}
+                    onChange={(e) => handleInput(e)} />
+                {errorMessage.totalFees && <p>{errorMessage.totalFees}</p>}
+
+            </div>
+
+            <button onClick={() => hadnleSubmit()} >Add Appointment</button>
+            {errorMessage.global && <p>{errorMessage.global}</p>}
+
+
+            {successMessage && <p>{successMessage}</p>}
+        </div>
+    )
+}
+
+export default AddAppointment
+
+
+
+
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+function AppointmentList({ appointments, deleteAppointment, getAppointments }) {
+  const [searchValue, setSearchValue] = useState('')
+  const [sortValue, setSortValue] = useState(null)
+  const navigate = useNavigate()
+
+
+  let filteredData = appointments.filter(itr => itr.patientName.toLowerCase().includes(searchValue.toLowerCase()) ||
+    itr.doctorName.toLowerCase().includes(searchValue.toLowerCase()))
+
+  if (sortValue == "date-asc") {
+    filteredData.sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate))
+  }
+
+  if (sortValue == "date-desc") {
+    filteredData.sort((a, b) => new Date(b.appointmentDate) - new Date(a.appointmentDate))
+  }
+
+  if (sortValue == "fees-asc") {
+    filteredData.sort((a, b) => a.totalFees - b.totalFees)
+  }
+
+  if (sortValue == "fees-desc") {
+    filteredData.sort((a, b) => b.totalFees - a.totalFees)
+  }
+
+  if (filteredData.length == 0) {
+    return <p>No appointments available</p>
+  }
+  // useEffect(() => {
+  //   getAppointments()
+  // }, [])
+
+
+  return (
+    <div>
+
+      <select onChange={(e) => setSortValue(e.target.value)} >
+        <option value="date-asc">Sort by Date (oldest first)</option>
+        <option value="date-desc">Sort by Date (newest first)</option>
+        <option value="fees-asc">Sort by Total Fees (low to high)</option>
+        <option value="fees-desc">Sort by Total Fees (High to low)</option>
+      </select>
+
+      <label htmlFor="search"></label>
+      <input type="text"
+        name='search'
+        id='search'
+        placeholder='Search by Patient Name or Doctor Name'
+        onChange={(e) => setSearchValue(e.target.value)} />
+
+      <h1>Appointments</h1>
+
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Patient Name</th>
+            <th>Doctor Name</th>
+            <th>Department</th>
+            <th>Appointment Date</th>
+            <th>Time Slot</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {filteredData.length > 0 ? filteredData.map(appointment => {
+            return (
+              <tr>
+                <td>{appointment.patientName}</td>
+                <td>{appointment.doctorName}</td>
+                <td>{appointment.department}</td>
+                <td>{appointment.appointmentDate}</td>
+                <td>{appointment.timeSlot}</td>
+                <td>{appointment.totalFees}</td>
+                <td>{appointment.status}</td>
+                <td><button onClick={()=> navigate(`/appointments/${appointment.id}`)} >View</button></td>
+                <td><button onClick={() => deleteAppointment(appointment.id)} >Delete</button></td>
+              </tr>
+            )
+          }) : searchValue ? "No matching apointments found" : "No appointments available"}
+        </tbody>
+      </table>
+
+      <p>Total Appointments: {appointments.length}</p>
+
+    </div>
+  )
+}
+
+export default AppointmentList
+
+
+
+
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+
+function AppointmentDetails() {
+  const [appointment, setAppointment] = useState({})
+  const [loading , setLoading] = useState(true)
+
+  const {id} = useParams()
+
+  const getAppointmentById = async(id)=>{
+    try {
+      const response = await axios.get(`https://ide-daadebbc345320386bafeabbcbcbeone.premiumproject.examly.io/proxy/3001/appointments/${id}`)
+      setAppointment(response.data)
+    } catch (error) {
+      console.log(error.message)
+    }
+    finally{
+      setLoading(false)
+    }
+  }
+
+  useEffect(()=>{
+    getAppointmentById(id)
+  } ,[])
+
+  console.log(appointment)
+  return (
+    <div>
+      {loading ? <p>loading</p> : <>{appointment && 
+      <>
+      <p>{appointment.patientName}</p> 
+      <p>{appointment.doctorName}</p> 
+      <p>{appointment.department}</p> 
+      <p>{appointment.appointmentDate}</p> 
+      <p>{appointment.appointmentDate}</p> 
+      <p>{appointment.timeSlot}</p> 
+      <p>{appointment.totalFees}</p> 
+      <p>{appointment.status}</p> 
+      </>
+      }</> }
+    </div>
+  )
+}
+
+export default AppointmentDetails
