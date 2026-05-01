@@ -32,6 +32,8 @@ import MySubmissions from './EntrepreneurComponents/MySubmissions';
 import Navbar from './Components/Reusable/Navbar';
 import Footer from './Components/Reusable/Footer';
 import BackgroundMusic from './Components/BackgroundMusic';
+import CosterChatbot from './Components/Reusable/CosterChatbot';
+
 
 // Define Navigation Links for each role
 const MENTOR_LINKS = [
@@ -94,6 +96,7 @@ const MainLayout = () => {
                     <Outlet />
                 </div>
             </main>
+            <CosterChatbot />
         </div>
     );
 };
@@ -150,6 +153,25 @@ function App() {
 
         verifyUser();
     }, [dispatch]);
+
+    // Global Water Drop Effect
+    useEffect(() => {
+        const handleClick = (e) => {
+            const drop = document.createElement('div');
+            drop.className = 'water-drop';
+            drop.style.left = `${e.clientX - 10}px`;
+            drop.style.top = `${e.clientY - 10}px`;
+            document.body.appendChild(drop);
+            
+            // Remove the element after animation ends
+            setTimeout(() => {
+                drop.remove();
+            }, 800);
+        };
+
+        window.addEventListener('mousedown', handleClick);
+        return () => window.removeEventListener('mousedown', handleClick);
+    }, []);
 
     return (
         <ThemeProvider>

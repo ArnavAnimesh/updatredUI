@@ -10,6 +10,10 @@ const { validateToken } = require('../authUtils');
 // Path: POST /user/signup
 router.post('/signup', userController.signup);
 
+// This route handles OTP verification
+// Path: POST /user/verify-otp
+router.post('/verify-otp', userController.verifyOtp);
+
 // This route handles user login
 // Path: POST /user/login
 router.post('/login', userController.login);

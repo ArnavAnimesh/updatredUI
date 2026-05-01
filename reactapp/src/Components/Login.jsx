@@ -104,88 +104,141 @@ const Login = () => {
 
 
     const getWrapperClass = () => {
-        if (theme === 'gravity') return "min-h-screen bg-transparent flex items-center justify-center p-6 page-transition relative z-10";
-        if (theme === 'osmo') return "min-h-screen bg-[#fafafa] flex items-center justify-center p-6 page-transition";
-        return "min-h-screen bg-slate-50 flex items-center justify-center p-6";
+        if (theme === 'gravity') return "h-[100dvh] bg-[#050510] flex relative z-10 overflow-hidden";
+        
+        return "h-[100dvh] bg-slate-50 flex overflow-hidden";
     };
 
-    const getCardClass = () => {
-        if (theme === 'gravity') return "bg-white/5 backdrop-blur-[30px] rounded-[1.5rem] shadow-[0_0_40px_rgba(124,58,237,0.15)] border border-white/10 w-full max-w-md overflow-hidden card-enter";
-        if (theme === 'osmo') return "bg-white rounded-[1.5rem] shadow-[0_2px_40px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)] w-full max-w-md overflow-hidden transition-transform duration-300";
-        return "bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden";
+    const getLeftPaneClass = () => {
+        return "w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 z-10 page-transition relative";
     };
 
-    const getHeaderClass = () => {
-        if (theme === 'gravity') return "p-8 text-center border-b border-white/10 bg-transparent";
-        if (theme === 'osmo') return "p-8 text-center bg-white border-b border-[#f0f0f0]";
-        return "bg-[#1E3A5F] p-8 text-center text-white";
+    const getRightPaneClass = () => {
+        if (theme === 'gravity') return "hidden lg:flex w-1/2 relative flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-purple-900/40 to-black border-l border-white/10 text-white";
+        
+        return "hidden lg:flex w-1/2 relative flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#1E3A5F] to-[#0f1d30] text-white";
+    };
+
+    const getFormContainerClass = () => {
+        if (theme === 'gravity') return "w-full max-w-md card-enter";
+        
+        return "w-full max-w-md";
     };
 
     const getTitleClass = () => {
-        if (theme === 'gravity') return "text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]";
-        if (theme === 'osmo') return "text-2xl font-[800] tracking-tight text-[#0f0f0f]";
-        return "text-2xl font-bold tracking-tight";
-    };
-
-    const getSubtitleClass = () => {
-        if (theme === 'gravity') return "text-gray-400 text-sm mt-2";
-        if (theme === 'osmo') return "text-[#71717a] text-sm mt-2";
-        return "text-slate-300 text-sm mt-2";
+        if (theme === 'gravity') return "text-4xl font-black tracking-tight text-white mb-2 drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]";
+        
+        return "text-4xl font-extrabold tracking-tight text-gray-900 mb-2";
     };
 
     return (
         <div className={getWrapperClass()}>
-            <div className={getCardClass()}>
-                {/* Header Section */}
-                <div className={getHeaderClass()}>
-                    <RiRocketLine className={`text-5xl mx-auto mb-4 ${theme === 'gravity' ? 'text-purple-500 drop-shadow-[0_0_10px_rgba(124,58,237,0.5)]' : theme === 'osmo' ? 'text-[#6366f1]' : 'text-[#F97316]'}`} />
-                    <h1 className={getTitleClass()}>StartupNest</h1>
-                    <p className={getSubtitleClass()}>Empowering ideas, one startup at a time.</p>
-                </div>
+            {/* Left Pane - Form */}
+            <div className={getLeftPaneClass()}>
+                {/* Optional decorative blur for Gravity */}
+                {theme === 'gravity' && (
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/20 blur-[100px] rounded-full pointer-events-none" />
+                )}
 
-                <div className={`p-8 ${theme === 'gravity' ? 'bg-transparent' : 'bg-white'}`}>
-                    <h2 className={`text-xl font-bold mb-6 ${theme === 'gravity' ? 'text-white' : theme === 'osmo' ? 'text-[#0f0f0f]' : 'text-slate-800'}`}>Login to your account</h2>
-
-                    {/* The Login Form */}
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        <Input
-                            label="Email Address"
-                            name="email"
-                            type="email"
-                            placeholder="john@example.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            error={errors.email}
-                        />
-
-                        <div className="space-y-1">
-                            <Input
-                                label="Password"
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleChange}
-                                error={errors.password}
-                            />
-                            <div className="text-right">
-                                <Link to="/forgot-password" intrinsic="true" className={`text-sm font-bold hover:underline ${theme === 'gravity' ? 'text-purple-400' : theme === 'osmo' ? 'text-[#6366f1]' : 'text-[#F97316]'}`}>
-                                    Forgot Password?
-                                </Link>
+                <div className={getFormContainerClass()}>
+                    {/* Header */}
+                    <div className="mb-10 text-center lg:text-left">
+                        <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
+                            <div className={`p-3 rounded-2xl ${theme === 'gravity' ? 'bg-purple-500/20 border border-purple-500/30' : 'bg-orange-100'}`}>
+                                <RiRocketLine className={`text-3xl ${theme === 'gravity' ? 'text-purple-400' : 'text-orange-600'}`} />
                             </div>
+                            <span className={`text-xl font-black tracking-widest uppercase ${theme === 'gravity' ? 'text-gray-300' : 'text-gray-900'}`}>StartupNest</span>
                         </div>
-
-                        <Button text="Login" type="submit" />
-                    </form>
-
-                    {/* Link to the Signup page */}
-                    <div className={`mt-8 text-center pt-6 border-t ${theme === 'gravity' ? 'border-white/10' : theme === 'osmo' ? 'border-[#f0f0f0]' : 'border-slate-100'}`}>
-                        <p className={`text-sm ${theme === 'gravity' ? 'text-gray-400' : 'text-slate-600'}`}>
-                            New here?{' '}
-                            <Link to="/signup" className={`font-bold hover:underline ${theme === 'gravity' ? 'text-white' : theme === 'osmo' ? 'text-[#0f0f0f]' : 'text-[#1E3A5F]'}`}>
-                                Create an Account
-                            </Link>
+                        <h1 className={getTitleClass()}>Welcome back.</h1>
+                        <p className={`text-sm md:text-base font-medium ${theme === 'gravity' ? 'text-gray-400' : 'text-gray-500'}`}>
+                            Log in to access your dashboard, connect with founders, and track your pitches.
                         </p>
+                    </div>
+
+                    {/* Form */}
+                    <div className={`p-8 md:p-10 rounded-[2.5rem] shadow-2xl ${theme === 'gravity' ? 'bg-white/5 backdrop-blur-3xl border border-white/10' : 'bg-white border border-gray-100'}`}>
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            <Input
+                                label="Email Address"
+                                name="email"
+                                type="email"
+                                placeholder="john@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                error={errors.email}
+                            />
+
+                            <div className="space-y-2">
+                                <Input
+                                    label="Password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    error={errors.password}
+                                />
+                                <div className="flex justify-end pt-1">
+                                    <Link to="/forgot-password" intrinsic="true" className={`text-sm font-bold transition-colors ${theme === 'gravity' ? 'text-purple-400 hover:text-purple-300' : 'text-orange-500 hover:text-orange-600'}`}>
+                                        Forgot Password?
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="pt-4">
+                                <Button 
+                                    text="Sign In securely" 
+                                    type="submit" 
+                                    className="w-full py-4 text-lg font-black"
+                                />
+                            </div>
+                        </form>
+
+                        <div className="mt-8 text-center">
+                            <p className={`text-sm font-medium ${theme === 'gravity' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                Don't have an account yet?{' '}
+                                <Link to="/signup" className={`font-bold transition-colors ${theme === 'gravity' ? 'text-white hover:text-purple-400' : 'text-gray-900 hover:text-orange-500'}`}>
+                                    Create one now
+                                </Link>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Pane - Visuals */}
+            <div className={getRightPaneClass()}>
+                {/* Decorative background elements */}
+                {theme === 'gravity' && (
+                    <>
+                        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-800/40 via-transparent to-transparent pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/30 via-transparent to-transparent pointer-events-none" />
+                    </>
+                )}
+
+                <div className="relative z-10 max-w-lg p-12 flex flex-col items-center text-center">
+                    <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-8 shadow-2xl ${theme === 'gravity' ? 'bg-purple-600 shadow-purple-500/50' : 'bg-orange-500 shadow-orange-500/40'}`}>
+                        <RiRocketLine className="text-5xl text-white animate-bounce" />
+                    </div>
+                    
+                    <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
+                        {theme === 'gravity' ? <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">Where Ideas Take Flight</span> : "Where Ideas Take Flight."}
+                    </h2>
+                    
+                    <p className={`text-lg md:text-xl font-medium leading-relaxed ${theme === 'gravity' ? 'text-gray-300' : 'text-gray-300'}`}>
+                        Join the fastest-growing network of ambitious founders and experienced mentors building the next generation of unicorns.
+                    </p>
+
+                    {/* Social Proof Stats */}
+                    <div className="grid grid-cols-2 gap-6 mt-12 w-full">
+                        <div className={`p-6 rounded-3xl backdrop-blur-md border ${theme === 'gravity' ? 'bg-white/5 border-white/10' : 'bg-white/10 border-white/5'}`}>
+                            <div className="text-3xl font-black mb-1">500+</div>
+                            <div className="text-sm font-bold uppercase tracking-widest opacity-70">Startups Funded</div>
+                        </div>
+                        <div className={`p-6 rounded-3xl backdrop-blur-md border ${theme === 'gravity' ? 'bg-white/5 border-white/10' : 'bg-white/10 border-white/5'}`}>
+                            <div className="text-3xl font-black mb-1">$50M</div>
+                            <div className="text-sm font-bold uppercase tracking-widest opacity-70">Capital Raised</div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -56,6 +56,10 @@ const startupSubmissionSchema = new mongoose.Schema({
       message: 'Status code must be 1 (Submitted), 2 (Shortlisted), or 3 (Rejected)'
     }
   },
+  rejectionFeedback: {
+    type: String,
+    default: ''
+  },
   address: {
     type: String,
     required: [true, 'Validation failed: Physical address or location is required'],

@@ -16,6 +16,7 @@ import Input from '../Components/Reusable/Input';
 import ConfirmDialog from '../Components/Reusable/ConfirmDialog';
 import Loader from '../Components/Reusable/Loader';
 import { useTheme } from '../hooks/useTheme';
+import { playAddSound } from '../sounds/clickSound';
 
 const StartupProfileForm = () => {
     const navigate = useNavigate();
@@ -132,6 +133,7 @@ const StartupProfileForm = () => {
             }
 
             if (response.success) {
+                playAddSound();
                 toast.success(isEditing ? "Profile updated successfully!" : "Startup profile created successfully!");
                 navigate('/view-profiles');
             }
@@ -146,55 +148,55 @@ const StartupProfileForm = () => {
 
     const getRootClass = () => {
         if (theme === 'gravity') return "p-2 md:p-4 w-full max-w-4xl mx-auto flex-grow relative z-10 page-transition text-white mb-8";
-        if (theme === 'osmo') return "p-2 md:p-4 w-full max-w-4xl mx-auto flex-grow bg-[#fafafa] text-[#0f0f0f] page-transition mb-8";
+        
         return "p-2 md:p-4 w-full max-w-4xl mx-auto flex-grow bg-gray-50/30 mb-8";
     };
 
     const getTitleClass = () => {
         if (theme === 'gravity') return "text-2xl md:text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]";
-        if (theme === 'osmo') return "text-2xl md:text-3xl font-[800] text-[#0f0f0f] tracking-tight";
+        
         return "text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight";
     };
 
     const getSubtitleClass = () => {
         if (theme === 'gravity') return "mt-2 text-gray-400 font-medium";
-        if (theme === 'osmo') return "mt-2 text-[#71717a] font-medium";
+        
         return "mt-2 text-gray-600 font-medium";
     };
 
     const getCardClass = () => {
         if (theme === 'gravity') return "bg-white/5 backdrop-blur-[30px] rounded-[1.5rem] shadow-[0_0_40px_rgba(124,58,237,0.15)] border border-white/10 p-4 md:p-6 card-enter";
-        if (theme === 'osmo') return "bg-white rounded-[1.5rem] shadow-[0_2px_40px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)] p-4 md:p-6 transition-transform duration-300";
+        
         return "bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-4 md:p-6 border border-gray-100";
     };
 
     const getSelectClass = (hasError) => {
         if (theme === 'gravity') return `w-full p-3 border rounded-xl outline-none transition-all bg-white/5 text-white border-white/10 backdrop-blur-md focus:border-purple-500 focus:shadow-[0_0_15px_rgba(124,58,237,0.4)] ${hasError ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}`;
-        if (theme === 'osmo') return `w-full p-3 bg-white border rounded-xl outline-none transition-all focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] ${hasError ? 'border-red-500' : 'border-[#e4e4e7]'}`;
+        
         return `w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all ${hasError ? 'border-red-500' : 'border-gray-200'}`;
     };
 
     const getLabelClass = () => {
         if (theme === 'gravity') return "block text-xs md:text-sm font-bold text-gray-400 mb-1";
-        if (theme === 'osmo') return "block text-xs md:text-sm font-bold text-[#0f0f0f] mb-1";
+        
         return "block text-xs md:text-sm font-bold text-gray-700 mb-1";
     };
 
     const getTextAreaClass = (hasError) => {
         if (theme === 'gravity') return `w-full p-4 border rounded-2xl outline-none transition-all resize-none bg-white/5 text-white border-white/10 backdrop-blur-md focus:border-purple-500 focus:shadow-[0_0_15px_rgba(124,58,237,0.4)] ${hasError ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}`;
-        if (theme === 'osmo') return `w-full p-4 bg-white border rounded-2xl outline-none transition-all resize-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] ${hasError ? 'border-red-500' : 'border-[#e4e4e7]'}`;
+        
         return `w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-all resize-none ${hasError ? 'border-red-500' : 'border-gray-200'}`;
     };
 
     return (
         <div className={getRootClass()}>
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-5xl mx-auto">
                 
-                {/* Back Button (Only visible when editing) */}
+                {/* Back Button */}
                 {isEditing && (
                     <button 
                         onClick={() => navigate('/view-profiles')}
-                        className="mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors font-bold text-sm"
+                        className={`mb-6 flex items-center gap-2 transition-colors font-bold text-sm ${theme === 'gravity' ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
                     >
                         <RiArrowLeftLine />
                         <span>Back to Profiles</span>
@@ -202,133 +204,183 @@ const StartupProfileForm = () => {
                 )}
 
                 {/* Page Header */}
-                <div className="mb-4 md:mb-6 text-center">
-                    <h1 className={getTitleClass()}>
-                        {isEditing ? "Edit Startup Profile" : "Create Startup Opportunity"}
-                    </h1>
-                    <p className={getSubtitleClass()}>
-                        {isEditing 
-                            ? "Update the details of your startup opportunity below." 
-                            : "Fill in the details to list a new opportunity for entrepreneurs."}
-                    </p>
+                <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h1 className={getTitleClass()}>
+                            {isEditing ? "Edit Startup Profile" : "Create Startup Opportunity"}
+                        </h1>
+                        <p className={getSubtitleClass()}>
+                            {isEditing 
+                                ? "Update the details of your startup opportunity below." 
+                                : "List a new opportunity for entrepreneurs to discover."}
+                        </p>
+                    </div>
+                    {isEditing && (
+                        <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border ${theme === 'gravity' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' : 'bg-orange-100 text-orange-600 border-orange-200'}`}>
+                            Editing Mode Active
+                        </div>
+                    )}
                 </div>
 
-                {/* Form Card */}
-                <div className={getCardClass()}>
-                    <form onSubmit={handleSubmitClick} className="space-y-4">
+                {/* Form Wrapper */}
+                <form onSubmit={handleSubmitClick}>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         
-                        {/* 1. Business Category, Industry & Stage (Grid) */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Left Column: Categorization (Pill Selectors) */}
+                        <div className={`lg:col-span-5 space-y-8 p-6 md:p-8 rounded-[2.5rem] border ${theme === 'gravity' ? 'bg-white/5 backdrop-blur-2xl border-white/10 shadow-2xl' : 'bg-white shadow-xl border-gray-100'}`}>
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className={`w-1.5 h-6 rounded-full ${theme === 'gravity' ? 'bg-purple-500' : 'bg-orange-500'}`} />
+                                <h2 className="text-xl font-bold tracking-tight">Categorization</h2>
+                            </div>
+
+                            {/* Category Pill Selector */}
                             <div>
-                                <label className={getLabelClass()}>Business Category</label>
-                                <select
-                                    name="category"
-                                    value={formData.category}
-                                    onChange={handleChange}
-                                    className={getSelectClass(errors.category)}
-                                >
-                                    <option value="" className={theme === 'gravity' ? 'text-black' : ''}>Select Category</option>
-                                    {categories.map(c => <option key={c} value={c} className={theme === 'gravity' ? 'text-black' : ''}>{c}</option>)}
-                                </select>
-                                {errors.category && <p className="mt-1 text-xs font-bold text-red-500">{errors.category}</p>}
+                                <label className={getLabelClass()}>Business Category <span className="text-red-500">*</span></label>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {categories.map(c => (
+                                        <button
+                                            key={c}
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, category: c }))}
+                                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                                                formData.category === c
+                                                ? (theme === 'gravity' ? 'bg-purple-600 text-white border-purple-500 shadow-[0_0_15px_rgba(124,58,237,0.4)]' : 'bg-orange-500 text-white border-orange-500 shadow-md')
+                                                : (theme === 'gravity' ? 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100')
+                                            }`}
+                                        >
+                                            {c}
+                                        </button>
+                                    ))}
+                                </div>
+                                {errors.category && <p className="mt-2 text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.category}</p>}
                             </div>
 
+                            {/* Industry Pill Selector */}
                             <div>
-                                <label className={getLabelClass()}>Target Industry</label>
-                                <select
-                                    name="targetIndustry"
-                                    value={formData.targetIndustry}
-                                    onChange={handleChange}
-                                    className={getSelectClass(errors.targetIndustry)}
-                                >
-                                    <option value="" className={theme === 'gravity' ? 'text-black' : ''}>Select Industry</option>
-                                    {industries.map(i => <option key={i} value={i} className={theme === 'gravity' ? 'text-black' : ''}>{i}</option>)}
-                                </select>
-                                {errors.targetIndustry && <p className="mt-1 text-xs font-bold text-red-500">{errors.targetIndustry}</p>}
+                                <label className={getLabelClass()}>Target Industry <span className="text-red-500">*</span></label>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {industries.map(i => (
+                                        <button
+                                            key={i}
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, targetIndustry: i }))}
+                                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                                                formData.targetIndustry === i
+                                                ? (theme === 'gravity' ? 'bg-purple-600 text-white border-purple-500 shadow-[0_0_15px_rgba(124,58,237,0.4)]' : 'bg-orange-500 text-white border-orange-500 shadow-md')
+                                                : (theme === 'gravity' ? 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100')
+                                            }`}
+                                        >
+                                            {i}
+                                        </button>
+                                    ))}
+                                </div>
+                                {errors.targetIndustry && <p className="mt-2 text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.targetIndustry}</p>}
                             </div>
 
+                            {/* Stage Pill Selector */}
                             <div>
-                                <label className={getLabelClass()}>Preferred Stage</label>
-                                <select
-                                    name="preferredStage"
-                                    value={formData.preferredStage}
-                                    onChange={handleChange}
-                                    className={getSelectClass(errors.preferredStage)}
-                                >
-                                    <option value="" className={theme === 'gravity' ? 'text-black' : ''}>Select Stage</option>
-                                    {stages.map(s => <option key={s} value={s} className={theme === 'gravity' ? 'text-black' : ''}>{s}</option>)}
-                                </select>
-                                {errors.preferredStage && <p className="mt-1 text-xs font-bold text-red-500">{errors.preferredStage}</p>}
+                                <label className={getLabelClass()}>Preferred Stage <span className="text-red-500">*</span></label>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {stages.map(s => (
+                                        <button
+                                            key={s}
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, preferredStage: s }))}
+                                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border capitalize ${
+                                                formData.preferredStage === s
+                                                ? (theme === 'gravity' ? 'bg-purple-600 text-white border-purple-500 shadow-[0_0_15px_rgba(124,58,237,0.4)]' : 'bg-orange-500 text-white border-orange-500 shadow-md')
+                                                : (theme === 'gravity' ? 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100')
+                                            }`}
+                                        >
+                                            {s}
+                                        </button>
+                                    ))}
+                                </div>
+                                {errors.preferredStage && <p className="mt-2 text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.preferredStage}</p>}
                             </div>
                         </div>
 
-                        {/* 2. Funding Limit & Equity (Grid) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input
-                                label="Funding Limit (₹)"
-                                name="fundingLimit"
-                                type="number"
-                                min="0"
-                                value={formData.fundingLimit}
-                                onChange={handleChange}
-                                error={errors.fundingLimit}
-                                placeholder="e.g. 500000"
-                            />
-                            <Input
-                                label="Avg. Equity Expectation (%)"
-                                name="avgEquityExpectation"
-                                type="number"
-                                min="0"
-                                value={formData.avgEquityExpectation}
-                                onChange={handleChange}
-                                error={errors.avgEquityExpectation}
-                                placeholder="e.g. 10"
-                            />
-                        </div>
+                        {/* Right Column: Financials & Description */}
+                        <div className="lg:col-span-7 flex flex-col gap-8">
+                            
+                            <div className={`p-6 md:p-8 rounded-[2.5rem] border flex-1 space-y-6 ${theme === 'gravity' ? 'bg-white/5 backdrop-blur-2xl border-white/10 shadow-2xl' : 'bg-white shadow-xl border-gray-100'}`}>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className={`w-1.5 h-6 rounded-full ${theme === 'gravity' ? 'bg-purple-500' : 'bg-orange-500'}`} />
+                                    <h2 className="text-xl font-bold tracking-tight">Financials & Details</h2>
+                                </div>
 
-                        {/* 3. Description */}
-                        <div>
-                            <label className={getLabelClass()}>Description</label>
-                            <textarea
-                                name="description"
-                                rows="3"
-                                value={formData.description}
-                                onChange={handleChange}
-                                placeholder="Briefly describe the opportunity and what you are looking for..."
-                                className={getTextAreaClass(errors.description)}
-                            />
-                            <div className="flex justify-between mt-1">
-                                {errors.description ? (
-                                    <p className="text-xs font-bold text-red-500">{errors.description}</p>
-                                ) : (
-                                    <p className="text-xs text-gray-400">Min 20 characters, Max 500.</p>
-                                )}
-                                <span className={`text-xs font-bold ${formData.description.length > 500 ? 'text-red-500' : 'text-gray-400'}`}>
-                                    {formData.description.length}/500
-                                </span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <Input
+                                        label="Funding Limit (₹)"
+                                        name="fundingLimit"
+                                        type="number"
+                                        min="0"
+                                        value={formData.fundingLimit}
+                                        onChange={handleChange}
+                                        error={errors.fundingLimit}
+                                        placeholder="e.g. 500000"
+                                    />
+                                    <Input
+                                        label="Avg. Equity Expectation (%)"
+                                        name="avgEquityExpectation"
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        value={formData.avgEquityExpectation}
+                                        onChange={handleChange}
+                                        error={errors.avgEquityExpectation}
+                                        placeholder="e.g. 10"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className={getLabelClass()}>Detailed Description <span className="text-red-500">*</span></label>
+                                    <textarea
+                                        name="description"
+                                        rows="5"
+                                        value={formData.description}
+                                        onChange={handleChange}
+                                        placeholder="What kind of startup are you looking to fund? Outline your expectations..."
+                                        className={getTextAreaClass(errors.description)}
+                                    />
+                                    <div className="flex justify-between mt-2 ml-1">
+                                        {errors.description ? (
+                                            <p className="text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.description}</p>
+                                        ) : (
+                                            <p className={`text-xs font-bold ${theme === 'gravity' ? 'text-gray-500' : 'text-gray-400'}`}>Min 20 characters, Max 500.</p>
+                                        )}
+                                        <span className={`text-xs font-black ${formData.description.length > 500 ? 'text-red-500' : (theme === 'gravity' ? 'text-gray-500' : 'text-gray-400')}`}>
+                                            {formData.description.length}/500
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Submit Actions */}
+                            <div className={`p-6 rounded-[2rem] border ${theme === 'gravity' ? 'bg-white/5 border-white/10 shadow-xl' : 'bg-white shadow-xl'}`}>
+                                <Button
+                                    text={isEditing ? "Save Changes" : "Publish Opportunity"}
+                                    type="submit"
+                                    className={`w-full py-4 rounded-2xl text-lg font-black tracking-tight transition-all active:scale-[0.98] ${
+                                        theme === 'gravity' 
+                                        ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_10px_30px_rgba(124,58,237,0.4)] border-t border-white/20' 
+                                        : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg'
+                                    }`}
+                                />
                             </div>
                         </div>
-
-                        {/* Submit Button */}
-                        <div className="pt-2">
-                            <Button
-                                text={isEditing ? "Update Profile" : "Create Opportunity"}
-                                type="submit"
-                                className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-2xl shadow-lg shadow-orange-200 font-bold text-lg active:scale-[0.98] transition-all"
-                            />
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
 
             {/* Confirmation Dialog */}
             <ConfirmDialog
                 isOpen={isConfirmOpen}
-                title={isEditing ? "Update Profile?" : "Create Profile?"}
+                title={isEditing ? "Update Profile?" : "Publish Profile?"}
                 message={isEditing 
                     ? "Are you sure you want to save the changes to this startup opportunity?" 
-                    : "Are you sure you want to list this startup opportunity? This will be visible to entrepreneurs."}
-                confirmText={isEditing ? "Yes, Update It" : "Yes, List It"}
+                    : "Are you ready to publish this opportunity? It will be instantly visible to entrepreneurs."}
+                confirmText={isEditing ? "Yes, Update It" : "Yes, Publish It"}
                 onConfirm={handleConfirmSubmit}
                 onCancel={() => setIsConfirmOpen(false)}
             />

@@ -7,7 +7,7 @@ export const ThemeContext = createContext({
 });
 
 const THEME_KEY = 'startupnest_theme';
-const VALID_THEMES = ['default', 'osmo', 'gravity'];
+const VALID_THEMES = ['default', 'gravity'];
 
 export const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(() => {

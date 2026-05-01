@@ -110,6 +110,17 @@ router.put(
 );
 
 /**
+ * PUT /reject/:id
+ * Allows the Mentor to reject a submission with feedback.
+ */
+router.put(
+    '/reject/:id',
+    validateToken,
+    checkRole('Mentor'),
+    submissionController.rejectSubmission
+);
+
+/**
  * DELETE /delete/:id
  * Allows the Mentor to remove a submission.
  */

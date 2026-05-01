@@ -35,6 +35,19 @@ const startupService = {
     },
 
     /**
+     * getMyProfiles
+     * Fetches only the profiles created by the logged-in Mentor.
+     */
+    getMyProfiles: async (params = {}) => {
+        try {
+            const response = await api.get('/startup/my-profiles', { params });
+            return response.data;
+        } catch (error) {
+            throw error.response ? error.response.data : new Error("Network error");
+        }
+    },
+
+    /**
      * updateProfile
      * Sends a PUT request to update an existing profile.
      */

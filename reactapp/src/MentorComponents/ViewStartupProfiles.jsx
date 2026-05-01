@@ -22,6 +22,7 @@ import Button from '../Components/Reusable/Button';
 import ConfirmDialog from '../Components/Reusable/ConfirmDialog';
 import Loader from '../Components/Reusable/Loader';
 import { useTheme } from '../hooks/useTheme';
+import { playDeleteSound } from '../sounds/clickSound';
 
 const ViewStartupProfiles = () => {
     const navigate = useNavigate();
@@ -48,7 +49,7 @@ const ViewStartupProfiles = () => {
     const loadProfiles = useCallback(async (page = 1, keyword = '') => {
         dispatch(fetchStart());
         try {
-            const response = await startupService.getAllProfiles({ 
+            const response = await startupService.getMyProfiles({ 
                 page, 
                 keyword,
                 sortBy: 'createdAt',
@@ -87,6 +88,7 @@ const ViewStartupProfiles = () => {
         try {
             const response = await startupService.deleteProfile(id);
             if (response.success) {
+                playDeleteSound();
                 toast.success("Profile deleted successfully");
                 // Refresh the current page
                 loadProfiles(pagination.currentPage, debouncedSearch);
@@ -145,25 +147,25 @@ const ViewStartupProfiles = () => {
 
     const getRootClass = () => {
         if (theme === 'gravity') return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col relative z-10 page-transition text-white";
-        if (theme === 'osmo') return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col bg-[#fafafa] text-[#0f0f0f] page-transition";
+        
         return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col bg-gray-50/30";
     };
 
     const getTitleClass = () => {
         if (theme === 'gravity') return "text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]";
-        if (theme === 'osmo') return "text-3xl font-[800] text-[#0f0f0f] tracking-tight";
+        
         return "text-3xl font-black text-gray-900 tracking-tight";
     };
 
     const getSubtitleClass = () => {
         if (theme === 'gravity') return "text-gray-400 font-medium mt-1";
-        if (theme === 'osmo') return "text-[#71717a] font-medium mt-1";
+        
         return "text-gray-500 font-medium mt-1";
     };
 
     const getSearchClass = () => {
         if (theme === 'gravity') return "w-full pl-12 pr-4 py-4 border rounded-2xl outline-none transition-all font-medium bg-white/5 text-white border-white/10 backdrop-blur-md focus:border-purple-500 focus:shadow-[0_0_15px_rgba(124,58,237,0.4)] placeholder:text-gray-500";
-        if (theme === 'osmo') return "w-full pl-12 pr-4 py-4 bg-white border border-[#e4e4e7] rounded-full shadow-sm focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] outline-none transition-all placeholder:text-gray-400 font-medium text-[#0f0f0f]";
+        
         return "w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-400 font-medium";
     };
 

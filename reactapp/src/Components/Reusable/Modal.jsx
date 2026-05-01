@@ -16,31 +16,31 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
     const getOverlayClass = () => {
         if (theme === 'gravity') return "fixed inset-0 z-[90] flex items-center justify-center p-4 bg-[#050510]/80 backdrop-blur-xl animate-in fade-in duration-300";
-        if (theme === 'osmo') return "fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300";
+        
         return "fixed inset-0 z-[90] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-md animate-in fade-in duration-300";
     };
 
     const getModalClass = () => {
         if (theme === 'gravity') return "relative w-full max-w-2xl bg-white/5 border border-white/10 backdrop-blur-[30px] rounded-[2rem] shadow-[0_0_50px_rgba(124,58,237,0.3)] overflow-hidden animate-in zoom-in-95 duration-300";
-        if (theme === 'osmo') return "relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300";
+        
         return "relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-300";
     };
 
     const getHeaderClass = () => {
         if (theme === 'gravity') return "flex items-center justify-between p-6 border-b border-white/10";
-        if (theme === 'osmo') return "flex items-center justify-between p-6 border-b border-[#f0f0f0]";
+        
         return "flex items-center justify-between p-6 border-b border-gray-100";
     };
 
     const getTitleClass = () => {
         if (theme === 'gravity') return "text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(124,58,237,0.5)]";
-        if (theme === 'osmo') return "text-2xl font-[800] text-[#0f0f0f]";
+        
         return "text-2xl font-bold text-gray-900";
     };
 
     const getCloseBtnClass = () => {
         if (theme === 'gravity') return "p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10";
-        if (theme === 'osmo') return "p-2 text-[#71717a] hover:text-[#0f0f0f] transition-colors rounded-full hover:bg-black/5";
+        
         return "p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100";
     };
 

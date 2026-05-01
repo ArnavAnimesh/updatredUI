@@ -13,7 +13,9 @@ import {
     RiCheckLine, 
     RiCloseLine, 
     RiFilePdfLine,
-    RiRocket2Line
+    RiRocket2Line,
+    RiMapPin2Line,
+    RiClipboardLine
 } from 'react-icons/ri';
 
 // Import our reusable components
@@ -43,6 +45,11 @@ const StartupSubmissions = () => {
     const [selectedSubmission, setSelectedSubmission] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [confirmAction, setConfirmAction] = useState({ show: false, type: '', id: null });
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectLoading, setRejectLoading] = useState(false);
+    const [feedbackText, setFeedbackText] = useState('');
+    const [feedbackError, setFeedbackError] = useState('');
+    const [submissionToReject, setSubmissionToReject] = useState(null);
 
     // --- 2. DATA FETCHING ---
 
@@ -99,17 +106,37 @@ const StartupSubmissions = () => {
                     toast.success("Submission deleted successfully");
                     loadSubmissions(pagination.currentPage);
                 }
-            } else {
-                // Shortlist (2) or Reject (3)
-                const status = type === 'shortlist' ? 2 : 3;
-                const response = await startupSubmissionService.updateStatus(id, status);
+            } else if (type === 'shortlist') {
+                const response = await startupSubmissionService.updateStatus(id, 2);
                 if (response.success) {
-                    toast.success(`Submission ${type === 'shortlist' ? 'shortlisted' : 'rejected'}`);
+                    toast.success("Submission shortlisted");
                     loadSubmissions(pagination.currentPage);
                 }
             }
         } catch (error) {
             toast.error(error.message || "Action failed");
+        }
+    };
+
+    const handleConfirmRejection = async () => {
+        if (!feedbackText || feedbackText.trim().length < 10) {
+            setFeedbackError('Feedback must be at least 10 characters.');
+            return;
+        }
+        setRejectLoading(true);
+        try {
+            const response = await startupSubmissionService.rejectSubmission(submissionToReject, feedbackText);
+            if (response.success) {
+                toast.success('Submission rejected with feedback');
+                setShowRejectModal(false);
+                setFeedbackText('');
+                setFeedbackError('');
+                loadSubmissions(pagination.currentPage);
+            }
+        } catch (error) {
+            toast.error(error.message || "Failed to reject submission");
+        } finally {
+            setRejectLoading(false);
         }
     };
 
@@ -178,7 +205,10 @@ const StartupSubmissions = () => {
                     {/* Reject Action - Available if not already rejected (remains available after shortlist) */}
                     {submission.status !== 3 && (
                         <button 
-                            onClick={() => openConfirm('reject', submission._id)}
+                            onClick={() => {
+                                setSubmissionToReject(submission._id);
+                                setShowRejectModal(true);
+                            }}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
                             title="Reject"
                         >
@@ -192,25 +222,25 @@ const StartupSubmissions = () => {
 
     const getRootClass = () => {
         if (theme === 'gravity') return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col relative z-10 page-transition text-white";
-        if (theme === 'osmo') return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col bg-[#fafafa] text-[#0f0f0f] page-transition";
+        
         return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col";
     };
 
     const getTitleClass = () => {
         if (theme === 'gravity') return "text-3xl font-bold tracking-tight text-white drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]";
-        if (theme === 'osmo') return "text-3xl font-[800] text-[#0f0f0f] tracking-tight";
+        
         return "text-3xl font-black text-gray-900 tracking-tight";
     };
 
     const getSubtitleClass = () => {
         if (theme === 'gravity') return "text-gray-400 font-medium";
-        if (theme === 'osmo') return "text-[#71717a] font-medium";
+        
         return "text-gray-500 font-medium";
     };
 
     const getSelectClass = () => {
         if (theme === 'gravity') return "pl-10 pr-4 py-2.5 border rounded-xl outline-none transition-all font-bold text-sm bg-white/5 text-white border-white/10 backdrop-blur-md focus:border-purple-500 focus:shadow-[0_0_15px_rgba(124,58,237,0.4)]";
-        if (theme === 'osmo') return "pl-10 pr-4 py-2.5 bg-white border border-[#e4e4e7] rounded-full shadow-sm outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] font-bold text-sm text-[#0f0f0f]";
+        
         return "pl-10 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl shadow-sm outline-none focus:ring-2 focus:ring-orange-500 font-bold text-sm text-gray-700";
     };
 
@@ -329,14 +359,52 @@ const StartupSubmissions = () => {
                             </a>
                         </div>
 
-                        <div>
-                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Physical Address</p>
-                            <p className={`text-sm font-medium border p-4 rounded-2xl leading-relaxed ${theme === 'gravity' ? 'bg-white/5 border-white/10 text-gray-300' : 'bg-white border-gray-100 text-gray-800'}`}>
+                        <div className="pt-2">
+                            <div className="flex items-center justify-between mb-2 px-1">
+                                <div className="flex items-center gap-2">
+                                    <RiMapPin2Line className={theme === 'gravity' ? 'text-purple-400' : 'text-orange-500'} />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Physical Address</p>
+                                </div>
+                            </div>
+                            <div className={`group relative text-sm font-medium border p-5 rounded-3xl leading-relaxed break-all ${theme === 'gravity' ? 'bg-white/5 border-white/10 text-gray-300 shadow-inner' : 'bg-slate-50 border-gray-200 text-gray-800'}`}>
                                 {selectedSubmission.address}
-                            </p>
+                                <button 
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(selectedSubmission.address);
+                                        toast.info("Address copied to clipboard");
+                                    }}
+                                    className={`absolute top-4 right-4 p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all ${theme === 'gravity' ? 'bg-white/10 text-gray-400 hover:text-white' : 'bg-white shadow-sm text-gray-500 hover:text-orange-600'}`}
+                                    title="Copy Address"
+                                >
+                                    <RiClipboardLine size={16} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            {/* Rejection Feedback Modal */}
+            <Modal isOpen={showRejectModal} onClose={() => !rejectLoading && setShowRejectModal(false)} title="Reject this idea?">
+                <div className="space-y-4">
+                    <p className={`text-sm font-medium ${theme === 'gravity' ? 'text-gray-400' : 'text-gray-500'}`}>Please provide a reason for rejection. This will be shared with the entrepreneur.</p>
+                    <div>
+                        <textarea
+                            value={feedbackText}
+                            onChange={(e) => {
+                                setFeedbackText(e.target.value);
+                                if (e.target.value.trim().length >= 10) setFeedbackError('');
+                            }}
+                            placeholder="Write your feedback for the entrepreneur (required)..."
+                            className={`w-full h-32 p-4 border rounded-2xl outline-none transition-all text-sm font-medium resize-none ${feedbackError ? (theme === 'gravity' ? 'border-red-500/50 bg-red-500/5' : 'border-red-300 bg-red-50') : (theme === 'gravity' ? 'border-white/10 bg-white/5 focus:border-purple-500 text-white' : 'border-slate-200 bg-slate-50 focus:border-[#ff7a21]')}`}
+                        />
+                        {feedbackError && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-wider">{feedbackError}</p>}
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                        <button onClick={() => setShowRejectModal(false)} disabled={rejectLoading} className={`flex-1 py-3.5 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${theme === 'gravity' ? 'bg-white/10 text-gray-400 hover:bg-white/20' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'}`}>Cancel</button>
+                        <button onClick={handleConfirmRejection} disabled={rejectLoading} className={`flex-1 py-3.5 rounded-xl text-white font-black uppercase tracking-widest text-[10px] transition-all ${theme === 'gravity' ? 'bg-red-500/80 hover:bg-red-500' : 'bg-red-500 hover:bg-red-600'}`}>{rejectLoading ? 'Processing...' : 'Confirm Rejection'}</button>
+                    </div>
+                </div>
             </Modal>
 
             {/* Generic Confirmation Dialog */}

@@ -77,6 +77,19 @@ const startupSubmissionService = {
     },
 
     /**
+     * rejectSubmission (Mentor)
+     * Rejects a submission with feedback.
+     */
+    rejectSubmission: async (id, feedback) => {
+        try {
+            const response = await api.put(`/submission/reject/${id}`, { feedback });
+            return response.data;
+        } catch (error) {
+            throw error.response ? error.response.data : new Error("Failed to reject submission");
+        }
+    },
+
+    /**
      * deleteSubmission (Mentor)
      * Deletes a submission from the mentor's dashboard.
      */

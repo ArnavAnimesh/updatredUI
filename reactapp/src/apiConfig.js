@@ -17,8 +17,7 @@ api.interceptors.response.use(
             if (!window.location.pathname.includes('/login') && window.location.pathname !== '/') {
                 toast.error("Session Expired: Please login again to continue.");
                 
-                // We clear local storage and redirect to login
-                // Note: We use window.location for a hard redirect which also resets any in-memory state
+                // We redirect to login which also resets any in-memory state
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 1500);

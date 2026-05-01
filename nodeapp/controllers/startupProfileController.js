@@ -61,6 +61,47 @@ exports.getAllProfiles = asyncHandler(async (req, res) => {
     });
 });
 
+// Fetches ONLY the profiles created by the logged-in Mentor
+exports.getMyProfiles = asyncHandler(async (req, res) => {
+    const { page, limit, skip } = getPagination(req.query);
+
+    // SEARCH LOGIC
+    const keyword = req.query.keyword || '';
+    const searchQuery = { mentorId: req.user.id }; // Filter strictly by the logged-in user
+
+    if (keyword) {
+        searchQuery.$or = [
+            { category: { $regex: keyword, $options: 'i' } },
+            { description: { $regex: keyword, $options: 'i' } },
+            { targetIndustry: { $regex: keyword, $options: 'i' } }
+        ];
+    }
+
+    // SORT LOGIC
+    const sortBy = req.query.sortBy || 'createdAt';
+    const order = req.query.order === 'asc' ? 1 : -1;
+
+    const profiles = await StartupProfile.find(searchQuery)
+        .populate('mentorId', 'userName email')
+        .skip(skip)
+        .limit(limit)
+        .sort({ [sortBy]: order });
+
+    const totalRecords = await StartupProfile.countDocuments(searchQuery);
+
+    return res.status(200).json({
+        success: true,
+        message: "Your profiles fetched successfully.",
+        data: profiles,
+        pagination: {
+            currentPage: page,
+            pageSize: limit,
+            totalRecords: totalRecords,
+            totalPages: Math.ceil(totalRecords / limit)
+        }
+    });
+});
+
 // Mentors use this to update their existing startup opportunities.
 exports.updateProfile = asyncHandler(async (req, res) => {
     const { id } = req.params;

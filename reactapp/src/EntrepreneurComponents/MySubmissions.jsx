@@ -13,7 +13,8 @@ import {
     RiFilePdfLine, 
     RiDeleteBin6Line,
     RiRocket2Line,
-    RiExternalLinkLine
+    RiExternalLinkLine,
+    RiFileTextLine
 } from 'react-icons/ri';
 
 // Import our reusable components
@@ -26,6 +27,7 @@ import Loader from '../Components/Reusable/Loader';
 
 import startupSubmissionService from '../services/startupSubmissionService';
 import { useTheme } from '../hooks/useTheme';
+import { playDeleteSound } from '../sounds/clickSound';
 
 const MySubmissions = () => {
     // --- 1. STATE MANAGEMENT ---
@@ -42,6 +44,7 @@ const MySubmissions = () => {
     const [selectedProfile, setSelectedProfile] = useState(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null });
+    const [reasonModal, setReasonModal] = useState({ show: false, title: '', content: '' });
 
     // --- 2. DEBOUNCE SEARCH ---
     useEffect(() => {
@@ -98,6 +101,7 @@ const MySubmissions = () => {
         try {
             const response = await startupSubmissionService.deleteMySubmission(id);
             if (response.success) {
+                playDeleteSound();
                 toast.success("Submission removed successfully");
                 loadSubmissions(pagination.currentPage, debouncedSearch);
             }
@@ -170,6 +174,15 @@ const MySubmissions = () => {
                     >
                         <RiFilePdfLine size={18} />
                     </button>
+                    {submission.status === 3 && submission.rejectionFeedback && (
+                        <button 
+                            onClick={() => setReasonModal({ show: true, title: 'Rejection Feedback', content: submission.rejectionFeedback })}
+                            className={`p-2 rounded-xl transition-all ${theme === 'gravity' ? 'text-red-400 hover:bg-red-500/20' : 'text-red-600 hover:bg-red-50'}`}
+                            title="View Feedback"
+                        >
+                            <RiFileTextLine size={18} />
+                        </button>
+                    )}
                     <button 
                         onClick={() => handleOpenDelete(submission._id)}
                         className={`p-2 rounded-xl transition-all ${theme === 'gravity' ? 'text-gray-400 hover:bg-red-500/20 hover:text-red-400' : 'text-gray-400 hover:bg-red-50 hover:text-red-600'}`}
@@ -184,25 +197,25 @@ const MySubmissions = () => {
 
     const getRootClass = () => {
         if (theme === 'gravity') return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col relative z-10 page-transition text-white";
-        if (theme === 'osmo') return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col bg-[#fafafa] text-[#0f0f0f] page-transition";
+        
         return "p-4 md:p-8 w-full max-w-7xl mx-auto flex-grow flex flex-col";
     };
 
     const getTitleClass = () => {
         if (theme === 'gravity') return "text-4xl font-bold tracking-tighter uppercase text-white drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]";
-        if (theme === 'osmo') return "text-4xl font-[800] text-[#0f0f0f] tracking-tighter uppercase";
+        
         return "text-4xl font-black text-gray-900 tracking-tighter uppercase";
     };
 
     const getSubtitleClass = () => {
         if (theme === 'gravity') return "text-gray-400 font-medium mt-1 italic";
-        if (theme === 'osmo') return "text-[#71717a] font-medium mt-1 italic";
+        
         return "text-gray-500 font-medium mt-1 italic";
     };
 
     const getSearchClass = () => {
         if (theme === 'gravity') return "w-full pl-11 pr-4 py-3 border rounded-2xl outline-none transition-all font-bold text-sm bg-white/5 text-white border-white/10 backdrop-blur-md focus:border-purple-500 focus:shadow-[0_0_15px_rgba(124,58,237,0.4)] placeholder:text-gray-500";
-        if (theme === 'osmo') return "w-full pl-11 pr-4 py-3 bg-white border border-[#e4e4e7] rounded-full shadow-sm outline-none focus:border-[#6366f1] focus:shadow-[0_0_0_3px_rgba(99,102,241,0.2)] font-bold text-sm text-[#0f0f0f] placeholder:text-gray-400";
+        
         return "w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-orange-500 font-bold text-sm placeholder:text-gray-400";
     };
 
@@ -303,6 +316,22 @@ const MySubmissions = () => {
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            {/* Rejection Feedback View Modal */}
+            <Modal isOpen={reasonModal.show} onClose={() => setReasonModal({ ...reasonModal, show: false })} title={reasonModal.title}>
+                <div className="space-y-4">
+                    <div className={`flex items-center gap-3 p-4 rounded-2xl border shadow-sm ${theme === 'gravity' ? 'bg-red-500/10 border-red-500/20' : 'bg-[#f7f9ff] border-gray-100'}`}>
+                        <RiFileTextLine className={`text-xl ${theme === 'gravity' ? 'text-red-400' : 'text-[#ff7a21]'}`} />
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${theme === 'gravity' ? 'text-red-400' : 'text-gray-400'}`}>Justification</span>
+                    </div>
+                    <p className={`text-sm leading-relaxed font-medium p-6 rounded-3xl border italic ${theme === 'gravity' ? 'bg-white/5 border-white/10 text-gray-300' : 'bg-slate-50 border-slate-100 text-gray-600'}`}>
+                        "{reasonModal.content}"
+                    </p>
+                    <button onClick={() => setReasonModal({ ...reasonModal, show: false })} className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all ${theme === 'gravity' ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-[#0e1d2a] text-white hover:bg-gray-800'}`}>
+                        Close Feedback
+                    </button>
+                </div>
             </Modal>
 
             {/* Delete Confirmation Dialog */}

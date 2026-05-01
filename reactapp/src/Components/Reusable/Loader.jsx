@@ -20,7 +20,6 @@ const Loader = ({ fullPage = false }) => {
             : "flex flex-col items-center justify-center p-12 w-full h-full ";
         
         if (theme === 'gravity') base += "bg-[#050510]/80";
-        else if (theme === 'osmo') base += "bg-[#fafafa]/80";
         else base += "bg-white/80";
 
         return base;
@@ -41,18 +40,6 @@ const Loader = ({ fullPage = false }) => {
                 </div>
             )}
 
-            {theme === 'osmo' && (
-                <div className="flex flex-col items-center">
-                    <div className="flex space-x-2 mb-4">
-                        <div className="w-3 h-3 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                        <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-3 h-3 bg-rose-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
-                    <p className="text-xs font-[800] text-[#0f0f0f]/60 tracking-widest uppercase">
-                        Loading
-                    </p>
-                </div>
-            )}
 
             {theme === 'default' && (
                 <div className="flex flex-col items-center">

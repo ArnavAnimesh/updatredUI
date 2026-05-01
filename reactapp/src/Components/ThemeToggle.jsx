@@ -11,8 +11,6 @@ const ThemeToggle = () => {
 
     const getPillStyle = () => {
         switch (theme) {
-            case 'osmo':
-                return 'bg-black text-gray-500 border border-gray-800';
             case 'gravity':
                 return 'bg-white/5 backdrop-blur-xl border border-white/10 text-gray-400';
             case 'default':
@@ -24,8 +22,6 @@ const ThemeToggle = () => {
     const getActiveSegmentStyle = (isActive) => {
         if (!isActive) return 'hover:text-gray-300';
         switch (theme) {
-            case 'osmo':
-                return 'bg-white text-black font-bold shadow-sm';
             case 'gravity':
                 return 'bg-purple-600/30 text-white font-bold shadow-[0_0_15px_rgba(124,58,237,0.5)] border border-purple-500/30';
             case 'default':
@@ -44,12 +40,7 @@ const ThemeToggle = () => {
                 >
                     ◻ Classic
                 </button>
-                <button
-                    onClick={() => setTheme('osmo')}
-                    className={`px-3 py-1.5 text-[10px] uppercase tracking-wider rounded-full transition-all duration-300 ${getActiveSegmentStyle(theme === 'osmo')}`}
-                >
-                    ◈ Improved
-                </button>
+                
                 <button
                     onClick={() => setTheme('gravity')}
                     className={`px-3 py-1.5 text-[10px] uppercase tracking-wider rounded-full transition-all duration-300 ${getActiveSegmentStyle(theme === 'gravity')}`}
@@ -64,7 +55,7 @@ const ThemeToggle = () => {
                 className={`lg:hidden flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${getPillStyle()}`}
             >
                 {theme === 'default' && <span>◻</span>}
-                {theme === 'osmo' && <span>◈</span>}
+                
                 {theme === 'gravity' && <span className="text-purple-400 drop-shadow-[0_0_5px_rgba(124,58,237,0.5)]">⬡</span>}
             </button>
         </>

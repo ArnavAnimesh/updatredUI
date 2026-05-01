@@ -3,6 +3,50 @@ const StartupProfile = require('../models/StartupProfile');
 const asyncHandler = require('../utils/asyncHandler');
 const { sendSuccess, sendError } = require('../utils/responseHandler');
 const { getPagination } = require('../utils/pagination');
+const nodemailer = require('nodemailer');
+
+// Helper function to send status update email
+const sendStatusUpdateEmail = async (userEmail, userName, status, feedback = "") => {
+    try {
+        let transporter;
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS
+                }
+            });
+        } else {
+            // Fallback for testing
+            const testAccount = await nodemailer.createTestAccount();
+            transporter = nodemailer.createTransport({
+                host: testAccount.smtp.host,
+                port: testAccount.smtp.port,
+                secure: testAccount.smtp.secure,
+                auth: {
+                    user: testAccount.user,
+                    pass: testAccount.pass
+                }
+            });
+        }
+
+        const statusText = status === 2 ? 'Shortlisted' : 'Rejected';
+        const mailOptions = {
+            from: `"StartupNest" <${process.env.EMAIL_USER || 'noreply@startupnest.com'}>`,
+            to: userEmail,
+            subject: `Update on your Startup Idea: ${statusText}`,
+            text: `Hi ${userName},\n\nYour startup idea submission status has been updated to: ${statusText}.\n\n${feedback ? `Mentor Feedback: ${feedback}\n\n` : ''}Log in to StartupNest to see more details.\n\nBest regards,\nStartupNest Team`
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        if (!process.env.EMAIL_USER) {
+            console.log("Status Update Email preview URL: %s", nodemailer.getTestMessageUrl(info));
+        }
+    } catch (error) {
+        console.error("Error sending status update email:", error);
+    }
+};
 
 // Allows an Entrepreneur to submit a startup idea for a specific Mentor profile.
 exports.createSubmission = asyncHandler(async (req, res) => {
@@ -79,7 +123,9 @@ exports.updateSubmissionStatus = asyncHandler(async (req, res) => {
         return sendError(res, "Invalid status. Use 2 (Shortlist) or 3 (Reject).", 400);
     }
 
-    const submission = await StartupSubmission.findById(id).populate('startupProfileId');
+    const submission = await StartupSubmission.findById(id)
+        .populate('startupProfileId')
+        .populate('userId', 'email userName');
     if (!submission) {
         return sendError(res, "Submission not found.", 404);
     }
@@ -91,7 +137,53 @@ exports.updateSubmissionStatus = asyncHandler(async (req, res) => {
     submission.status = status;
     await submission.save();
 
+    // Send Email Notification
+    if (submission.userId && submission.userId.email) {
+        await sendStatusUpdateEmail(
+            submission.userId.email, 
+            submission.userId.userName, 
+            status
+        );
+    }
+
     return sendSuccess(res, `Submission status updated to ${status === 2 ? 'Shortlisted' : 'Rejected'}.`, submission);
+});
+
+// Function for Mentor to Reject with Feedback
+exports.rejectSubmission = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { feedback } = req.body;
+    
+    // Validation
+    if (!feedback || feedback.trim().length < 10) {
+        return sendError(res, "Feedback is required (min 10 characters).", 400);
+    }
+    
+    const submission = await StartupSubmission.findById(id)
+        .populate('startupProfileId')
+        .populate('userId', 'email userName');
+    if (!submission) return sendError(res, "Submission not found.", 404);
+    
+    if (submission.startupProfileId.mentorId.toString() !== req.user.id) {
+        return sendError(res, "Access Denied: You do not own the profile for this submission.", 403);
+    }
+
+    // Update Status and Feedback (3 = Rejected)
+    submission.status = 3;
+    submission.rejectionFeedback = feedback;
+    await submission.save();
+
+    // Send Email Notification with Feedback
+    if (submission.userId && submission.userId.email) {
+        await sendStatusUpdateEmail(
+            submission.userId.email, 
+            submission.userId.userName, 
+            3,
+            feedback
+        );
+    }
+    
+    return sendSuccess(res, "Submission rejected with feedback.", submission);
 });
 
 // Allows a Mentor to delete a submission.

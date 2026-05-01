@@ -11,6 +11,7 @@ require('dotenv').config();
 const userRouter = require('./routers/userRouter');
 const startupRouter = require('./routers/startupProfileRoutes');
 const submissionRouter = require('./routers/startupSubmissionRoutes');
+const chatRouter = require('./routers/chatRouter');
 
 const app = express();
 const PORT = 8080;
@@ -27,7 +28,7 @@ app.use(cookieParser());
 app.use('/uploads', express.static('uploads'));
 
 // This helper handles CORS so our frontend can talk to our backend safely
-app.use(cors({ origin: true, credentials: true })); 
+app.use(cors({ origin: 'http://localhost:3000', credentials: true })); 
 
 // DATABASE CONNECTION
 // We connect to MongoDB to store all our app's information
@@ -40,6 +41,7 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/startupnest
 app.use('/user', userRouter);
 app.use('/startup', startupRouter);
 app.use('/submission', submissionRouter);
+app.use('/chat', chatRouter);
 
 // GLOBAL ERROR HANDLER
 // This function catches any errors that happen in our app and sends a simple message back

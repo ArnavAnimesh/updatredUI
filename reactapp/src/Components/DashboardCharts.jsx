@@ -111,7 +111,7 @@ const DashboardCharts = () => {
 
     if (statusData.length === 0 && fundingData.length === 0) {
         return (
-            <div className={`p-8 text-center rounded-2xl ${theme === 'gravity' ? 'bg-white/5 border border-white/10 text-gray-400' : theme === 'osmo' ? 'bg-white shadow-sm border border-gray-100 text-gray-500' : 'bg-gray-50 text-gray-500'}`}>
+            <div className={`p-8 text-center rounded-2xl ${theme === 'gravity' ? 'bg-white/5 border border-white/10 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
                 <p>No data available yet to display charts.</p>
             </div>
         );
@@ -119,7 +119,6 @@ const DashboardCharts = () => {
 
     // Theme specific configurations
     const isClassic = theme === 'default';
-    const isOsmo = theme === 'osmo';
     const isGravity = theme === 'gravity';
 
     // Disable animations in classic
@@ -127,9 +126,7 @@ const DashboardCharts = () => {
 
     const COLORS = isGravity 
         ? ['#8b5cf6', '#3b82f6', '#f59e0b'] // Neon purple, blue, amber
-        : isOsmo 
-            ? ['#6366f1', '#10b981', '#f43f5e'] // Indigo, emerald, rose
-            : ['#1E3A5F', '#F97316', '#64748b']; // Classic brand colors
+        : ['#1E3A5F', '#F97316', '#64748b']; // Classic brand colors
 
     // Custom tooltips
     const CustomTooltip = ({ active, payload, label }) => {
@@ -137,7 +134,6 @@ const DashboardCharts = () => {
             return (
                 <div className={`p-3 rounded-xl border ${
                     isGravity ? 'bg-[#050510]/90 backdrop-blur-xl border-purple-500/30 text-white shadow-[0_0_15px_rgba(124,58,237,0.3)]' : 
-                    isOsmo ? 'bg-white border-[#f0f0f0] shadow-xl text-[#0f0f0f]' : 
                     'bg-white border-gray-200 shadow-md text-gray-800'
                 }`}>
                     <p className="font-bold mb-1">{label}</p>
@@ -152,8 +148,8 @@ const DashboardCharts = () => {
         return null;
     };
 
-    const textFill = isGravity ? '#94a3b8' : isOsmo ? '#71717a' : '#64748b';
-    const gridColor = isGravity ? 'rgba(255,255,255,0.05)' : isOsmo ? '#f4f4f5' : '#e2e8f0';
+    const textFill = isGravity ? '#94a3b8' : '#64748b';
+    const gridColor = isGravity ? 'rgba(255,255,255,0.05)' : '#e2e8f0';
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 w-full max-w-6xl mx-auto px-4 pb-12 relative z-10">
@@ -161,12 +157,11 @@ const DashboardCharts = () => {
             {/* Chart 1: Status Distribution (Pie) */}
             <div className={`p-6 rounded-3xl ${
                 isGravity ? 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(124,58,237,0.1)]' : 
-                isOsmo ? 'bg-white shadow-[0_2px_40px_rgba(0,0,0,0.06)] border border-[#f0f0f0]' : 
                 'bg-white shadow-lg border border-gray-100'
             }`}>
                 <h3 className={`text-xl font-bold mb-4 text-center ${
                     isGravity ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 
-                    isOsmo ? 'text-[#0f0f0f]' : 'text-gray-800'
+                    'text-gray-800'
                 }`}>
                     {isShowingProfiles ? 'Opportunities by Industry' : 'Submission Status Overview'}
                 </h3>
@@ -177,9 +172,9 @@ const DashboardCharts = () => {
                                 data={statusData}
                                 cx="50%"
                                 cy="50%"
-                                innerRadius={isGravity || isOsmo ? 60 : 0} // Donut for modern/improved
+                                innerRadius={isGravity ? 60 : 0} // Donut for modern
                                 outerRadius={80}
-                                paddingAngle={isGravity || isOsmo ? 5 : 0}
+                                paddingAngle={isGravity ? 5 : 0}
                                 dataKey="value"
                                 isAnimationActive={isAnimated}
                                 animationBegin={0}
@@ -206,12 +201,11 @@ const DashboardCharts = () => {
             {/* Chart 2: Funding vs Potential (Bar / Area) */}
             <div className={`p-6 rounded-3xl ${
                 isGravity ? 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_30px_rgba(124,58,237,0.1)]' : 
-                isOsmo ? 'bg-white shadow-[0_2px_40px_rgba(0,0,0,0.06)] border border-[#f0f0f0]' : 
                 'bg-white shadow-lg border border-gray-100'
             }`}>
                 <h3 className={`text-xl font-bold mb-4 text-center ${
                     isGravity ? 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 
-                    isOsmo ? 'text-[#0f0f0f]' : 'text-gray-800'
+                    'text-gray-800'
                 }`}>
                     {isShowingProfiles ? 'Available Funding Limits' : 'Recent Submissions Funding'}
                 </h3>
@@ -252,7 +246,7 @@ const DashboardCharts = () => {
                                 <Bar 
                                     dataKey="funding" 
                                     fill={COLORS[0]} 
-                                    radius={isOsmo ? [6, 6, 0, 0] : [0, 0, 0, 0]} 
+                                    radius={[0, 0, 0, 0]} 
                                     isAnimationActive={isAnimated}
                                     animationDuration={1000}
                                 />

@@ -101,13 +101,13 @@ const ForgotPassword = () => {
 
     const getWrapperClass = () => {
         if (theme === 'gravity') return "min-h-screen bg-transparent flex items-center justify-center p-6 py-12 page-transition relative z-10";
-        if (theme === 'osmo') return "min-h-screen bg-[#fafafa] flex items-center justify-center p-6 py-12 page-transition";
+        
         return "min-h-screen bg-slate-50 flex items-center justify-center p-6 py-12";
     };
 
     const getCardClass = () => {
         if (theme === 'gravity') return "bg-white/5 backdrop-blur-[30px] p-8 rounded-[1.5rem] shadow-[0_0_40px_rgba(124,58,237,0.15)] border border-white/10 w-full max-w-md card-enter";
-        if (theme === 'osmo') return "bg-white p-8 rounded-[1.5rem] shadow-[0_2px_40px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)] w-full max-w-md transition-transform duration-300";
+        
         return "bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100";
     };
 
@@ -116,10 +116,10 @@ const ForgotPassword = () => {
             {/* The main card for the password reset form */}
             <div className={getCardClass()}>
                 <div className="text-center mb-8">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${theme === 'gravity' ? 'bg-purple-500/10' : theme === 'osmo' ? 'bg-[#6366f1]/10' : 'bg-[#F97316]/10'}`}>
-                        <RiLockPasswordLine className={`text-3xl ${theme === 'gravity' ? 'text-purple-400 drop-shadow-[0_0_10px_rgba(124,58,237,0.5)]' : theme === 'osmo' ? 'text-[#6366f1]' : 'text-[#F97316]'}`} />
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${theme === 'gravity' ? 'bg-purple-500/10' : 'bg-[#F97316]/10'}`}>
+                        <RiLockPasswordLine className={`text-3xl ${theme === 'gravity' ? 'text-purple-400 drop-shadow-[0_0_10px_rgba(124,58,237,0.5)]' : 'text-[#F97316]'}`} />
                     </div>
-                    <h2 className={`text-3xl mb-2 ${theme === 'gravity' ? 'font-bold text-white drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]' : theme === 'osmo' ? 'font-[800] text-[#0f0f0f]' : 'font-black text-[#1E3A5F]'}`}>Reset Password</h2>
+                    <h2 className={`text-3xl mb-2 ${theme === 'gravity' ? 'font-bold text-white drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]' : 'font-black text-[#1E3A5F]'}`}>Reset Password</h2>
                     <p className={theme === 'gravity' ? 'text-gray-400' : 'text-slate-500'}>Provide your details to set a new password</p>
                 </div>
 
@@ -135,8 +135,8 @@ const ForgotPassword = () => {
                         error={errors.email}
                     />
 
-                    <div className={`p-4 rounded-xl border ${theme === 'gravity' ? 'bg-white/5 border-white/10 backdrop-blur-md' : theme === 'osmo' ? 'bg-[#fafafa] border-[#e4e4e7]' : 'bg-slate-50 border-slate-200'}`}>
-                        <p className={`text-xs font-bold uppercase mb-3 ${theme === 'gravity' ? 'text-purple-400 drop-shadow-[0_0_5px_rgba(124,58,237,0.5)]' : theme === 'osmo' ? 'text-[#6366f1]' : 'text-slate-500'}`}>Security Question</p>
+                    <div className={`p-4 rounded-xl border ${theme === 'gravity' ? 'bg-white/5 border-white/10 backdrop-blur-md' : 'bg-slate-50 border-slate-200'}`}>
+                        <p className={`text-xs font-bold uppercase mb-3 ${theme === 'gravity' ? 'text-purple-400 drop-shadow-[0_0_5px_rgba(124,58,237,0.5)]' : 'text-slate-500'}`}>Security Question</p>
                         <p className={`text-sm mb-3 ${theme === 'gravity' ? 'text-gray-300' : 'text-slate-700'}`}>What was the name of your first school?</p>
                         <Input 
                             label="Your Answer"
@@ -172,10 +172,10 @@ const ForgotPassword = () => {
                 </form>
 
                 {/* Link to go back to the Login page */}
-                <div className={`mt-8 text-center pt-6 border-t ${theme === 'gravity' ? 'border-white/10' : theme === 'osmo' ? 'border-[#f0f0f0]' : 'border-slate-100'}`}>
+                <div className={`mt-8 text-center pt-6 border-t ${theme === 'gravity' ? 'border-white/10' : 'border-slate-100'}`}>
                     <p className={theme === 'gravity' ? 'text-gray-400' : 'text-slate-600'}>
                         Remember your password?{' '}
-                        <Link to="/login" className={`font-bold hover:underline ${theme === 'gravity' ? 'text-white' : theme === 'osmo' ? 'text-[#0f0f0f]' : 'text-[#1E3A5F]'}`}>
+                        <Link to="/login" className={`font-bold hover:underline ${theme === 'gravity' ? 'text-white' : 'text-[#1E3A5F]'}`}>
                             Back to Login
                         </Link>
                     </p>

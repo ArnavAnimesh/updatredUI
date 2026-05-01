@@ -35,37 +35,37 @@ const ConfirmDialog = ({
 
     const getOverlayClass = () => {
         if (theme === 'gravity') return "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#050510]/80 backdrop-blur-xl animate-in fade-in duration-200";
-        if (theme === 'osmo') return "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200";
+        
         return "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200";
     };
 
     const getModalClass = () => {
         if (theme === 'gravity') return "w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-[30px] rounded-[2rem] shadow-[0_0_50px_rgba(124,58,237,0.3)] overflow-hidden animate-in zoom-in-95 duration-200";
-        if (theme === 'osmo') return "w-full max-w-md bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200";
+        
         return "w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200";
     };
 
     const getTitleClass = () => {
         if (theme === 'gravity') return "text-xl font-bold text-white drop-shadow-[0_0_10px_rgba(124,58,237,0.5)] mb-2";
-        if (theme === 'osmo') return "text-xl font-[800] text-[#0f0f0f] mb-2";
+        
         return "text-xl font-bold text-gray-900 mb-2";
     };
 
     const getMessageClass = () => {
         if (theme === 'gravity') return "text-gray-400 font-medium";
-        if (theme === 'osmo') return "text-[#71717a] font-medium";
+        
         return "text-gray-600 font-medium";
     };
 
     const getFooterClass = () => {
         if (theme === 'gravity') return "flex items-center justify-end p-6 space-x-3 bg-white/5 border-t border-white/10";
-        if (theme === 'osmo') return "flex items-center justify-end p-6 space-x-3 bg-[#fafafa] border-t border-[#f0f0f0]";
+        
         return "flex items-center justify-end p-6 space-x-3 bg-gray-50/50";
     };
 
     const getCancelBtnClass = () => {
         if (theme === 'gravity') return "px-4 py-2 text-sm font-bold text-gray-400 transition-colors hover:text-white";
-        if (theme === 'osmo') return "px-4 py-2 text-sm font-bold text-[#71717a] transition-colors hover:text-[#0f0f0f]";
+        
         return "px-4 py-2 text-sm font-bold text-gray-500 transition-colors hover:text-gray-900";
     };
 

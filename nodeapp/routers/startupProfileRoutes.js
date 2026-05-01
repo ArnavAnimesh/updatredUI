@@ -41,6 +41,14 @@ router.delete(
     startupController.deleteProfile
 );
 
+// Route for getting only the logged-in Mentor's profiles
+router.get(
+    '/my-profiles', 
+    validateToken, 
+    checkRole('Mentor'), 
+    startupController.getMyProfiles
+);
+
 /**
  * PUBLIC / SHARED ROUTES
  * These routes can be accessed by authenticated users (Mentors and Entrepreneurs).
