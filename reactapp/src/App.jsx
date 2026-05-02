@@ -18,44 +18,44 @@ import Login from './Components/Login';
 import Signup from './Components/Signup';
 import ForgotPassword from './Components/ForgotPassword';
 
-// Mentor Components
-import StartupProfileForm from './MentorComponents/StartupProfileForm';
-import ViewStartupProfiles from './MentorComponents/ViewStartupProfiles';
-import StartupSubmissions from './MentorComponents/StartupSubmissions';
-
-// Entrepreneur Components
-import ViewStartupOpportunities from './EntrepreneurComponents/ViewStartupOpportunities';
-import SubmitIdea from './EntrepreneurComponents/SubmitIdea';
-import MySubmissions from './EntrepreneurComponents/MySubmissions';
-
 // Reusable Components
 import Navbar from './Components/Reusable/Navbar';
-import Footer from './Components/Reusable/Footer';
 import BackgroundMusic from './Components/BackgroundMusic';
 import CosterChatbot from './Components/Reusable/CosterChatbot';
+import Loader from './Components/Reusable/Loader';
+
+// Mentor Components (Lazy Loaded)
+const StartupProfileForm = React.lazy(() => import('./MentorComponents/StartupProfileForm'));
+const ViewStartupProfiles = React.lazy(() => import('./MentorComponents/ViewStartupProfiles'));
+const StartupSubmissions = React.lazy(() => import('./MentorComponents/StartupSubmissions'));
+
+// Entrepreneur Components (Lazy Loaded)
+const ViewStartupOpportunities = React.lazy(() => import('./EntrepreneurComponents/ViewStartupOpportunities'));
+const SubmitIdea = React.lazy(() => import('./EntrepreneurComponents/SubmitIdea'));
+const MySubmissions = React.lazy(() => import('./EntrepreneurComponents/MySubmissions'));
 
 
 // Define Navigation Links for each role
 const MENTOR_LINKS = [
     { label: 'Home', path: '/' },
-    { 
-        label: 'Startup Profiles', 
+    {
+        label: 'Startup Profiles',
         subLinks: [
             { label: 'Add Profile', path: '/mentor/create-profile', desc: 'Create new opportunity' },
             { label: 'View Profiles', path: '/view-profiles', desc: 'Manage your listings' }
-        ] 
+        ]
     },
     { label: 'Startup Submissions', path: '/startup-submissions' }
 ];
 
 const ENTREPRENEUR_LINKS = [
     { label: 'Home', path: '/' },
-    { 
-        label: 'Startup Ideas', 
+    {
+        label: 'Startup Ideas',
         subLinks: [
             { label: 'Browse Mentors', path: '/mentor-opportunities', desc: 'Find funding & support' },
             { label: 'My Submissions', path: '/entrepreneur/my-submissions', desc: 'Track your pitches' }
-        ] 
+        ]
     }
 ];
 
@@ -65,7 +65,7 @@ const ENTREPRENEUR_LINKS = [
  */
 const ProtectedRoute = ({ children, requiredRole }) => {
     const { isAuthenticated, role } = useSelector((state) => state.user);
-    
+
     if (isAuthenticated === null) {
         return <div className="flex items-center justify-center min-h-screen font-semibold text-gray-500">Authenticating...</div>;
     }
@@ -87,9 +87,9 @@ const MainLayout = () => {
 
     return (
         <div className="flex flex-col h-screen overflow-hidden">
-            <Navbar 
-                role={role} 
-                links={role === 'Mentor' ? MENTOR_LINKS : ENTREPRENEUR_LINKS} 
+            <Navbar
+                role={role}
+                links={role === 'Mentor' ? MENTOR_LINKS : ENTREPRENEUR_LINKS}
             />
             <main className="flex-1 overflow-y-auto flex flex-col bg-transparent relative z-10">
                 <div className="flex-grow flex flex-col">
@@ -107,7 +107,7 @@ const MainLayout = () => {
  */
 const AuthRoute = ({ children }) => {
     const { isAuthenticated } = useSelector((state) => state.user);
-    
+
     if (isAuthenticated === null) {
         return <div className="flex items-center justify-center min-h-screen font-semibold text-gray-500">Checking session...</div>;
     }
@@ -125,7 +125,7 @@ const AuthRoute = ({ children }) => {
  */
 const RootRoute = () => {
     const { isAuthenticated } = useSelector((state) => state.user);
-    
+
     if (isAuthenticated === null) return null; // Wait for session check
     return isAuthenticated ? <Navigate to="/home" /> : <LandingPage />;
 };
@@ -162,7 +162,7 @@ function App() {
             drop.style.left = `${e.clientX - 10}px`;
             drop.style.top = `${e.clientY - 10}px`;
             document.body.appendChild(drop);
-            
+
             // Remove the element after animation ends
             setTimeout(() => {
                 drop.remove();
@@ -176,39 +176,41 @@ function App() {
     return (
         <ThemeProvider>
         <Router>
-            <Routes>
-                {/* --- 1. PUBLIC ROUTES --- */}
-                <Route path="/" element={<RootRoute />} />
-                <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
-                <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
-                <Route path="/forgot-password" element={<AuthRoute><ForgotPassword /></AuthRoute>} />
+            <React.Suspense fallback={<Loader fullPage />}>
+                <Routes>
+                    {/* --- 1. PUBLIC ROUTES --- */}
+                    <Route path="/" element={<RootRoute />} />
+                    <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+                    <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
+                    <Route path="/forgot-password" element={<AuthRoute><ForgotPassword /></AuthRoute>} />
 
-                {/* --- 2. SHARED PROTECTED ROUTES (Catch all roles) --- */}
-                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                    <Route path="/home" element={<HomePage />} />
-                </Route>
+                    {/* --- 2. SHARED PROTECTED ROUTES (Catch all roles) --- */}
+                    <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                        <Route path="/home" element={<HomePage />} />
+                    </Route>
 
-                {/* --- 3. MENTOR SPECIFIC ROUTES --- */}
-                <Route element={<ProtectedRoute requiredRole="Mentor"><MainLayout /></ProtectedRoute>}>
-                    <Route path="/mentor/create-profile" element={<StartupProfileForm />} />
-                    <Route path="/view-profiles" element={<ViewStartupProfiles />} />
-                    <Route path="/startup-submissions" element={<StartupSubmissions />} />
-                </Route>
+                    {/* --- 3. MENTOR SPECIFIC ROUTES --- */}
+                    <Route element={<ProtectedRoute requiredRole="Mentor"><MainLayout /></ProtectedRoute>}>
+                        <Route path="/mentor/create-profile" element={<StartupProfileForm />} />
+                        <Route path="/view-profiles" element={<ViewStartupProfiles />} />
+                        <Route path="/startup-submissions" element={<StartupSubmissions />} />
+                    </Route>
 
-                {/* --- 4. ENTREPRENEUR SPECIFIC ROUTES --- */}
-                <Route element={<ProtectedRoute requiredRole="Entrepreneur"><MainLayout /></ProtectedRoute>}>
-                    <Route path="/mentor-opportunities" element={<ViewStartupOpportunities />} />
-                    <Route path="/submit-idea" element={<SubmitIdea />} />
-                    <Route path="/entrepreneur/my-submissions" element={<MySubmissions />} />
-                </Route>
+                    {/* --- 4. ENTREPRENEUR SPECIFIC ROUTES --- */}
+                    <Route element={<ProtectedRoute requiredRole="Entrepreneur"><MainLayout /></ProtectedRoute>}>
+                        <Route path="/mentor-opportunities" element={<ViewStartupOpportunities />} />
+                        <Route path="/submit-idea" element={<SubmitIdea />} />
+                        <Route path="/entrepreneur/my-submissions" element={<MySubmissions />} />
+                    </Route>
 
-                {/* --- 5. FALLBACK --- */}
-                <Route path="*" element={<Navigate to="/home" />} />
-            </Routes>
-            
-            {/* Global Background Music Component */}
-            <BackgroundMusic />
-        </Router>
+                    {/* --- 5. FALLBACK --- */}
+                    <Route path="*" element={<Navigate to="/home" />} />
+                </Routes>
+            </React.Suspense>
+
+                {/* Global Background Music Component */}
+                <BackgroundMusic />
+            </Router>
         </ThemeProvider>
     );
 }

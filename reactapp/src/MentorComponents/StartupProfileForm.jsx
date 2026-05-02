@@ -9,7 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { RiArrowLeftLine } from 'react-icons/ri';
+import { RiArrowLeftLine, RiArrowDownSLine } from 'react-icons/ri';
 import startupService from '../services/startupService';
 import Button from '../Components/Reusable/Button';
 import Input from '../Components/Reusable/Input';
@@ -171,9 +171,9 @@ const StartupProfileForm = () => {
     };
 
     const getSelectClass = (hasError) => {
-        if (theme === 'gravity') return `w-full p-3 border rounded-xl outline-none transition-all bg-white/5 text-white border-white/10 backdrop-blur-md focus:border-purple-500 focus:shadow-[0_0_15px_rgba(124,58,237,0.4)] ${hasError ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}`;
+        if (theme === 'gravity') return `w-full p-3 border rounded-xl outline-none transition-all bg-white/5 text-white border-white/10 backdrop-blur-md focus:border-purple-500 focus:shadow-[0_0_15px_rgba(124,58,237,0.4)] appearance-none cursor-pointer ${hasError ? 'border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.3)]' : ''}`;
         
-        return `w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all ${hasError ? 'border-red-500' : 'border-gray-200'}`;
+        return `w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all appearance-none cursor-pointer ${hasError ? 'border-red-500' : 'border-gray-200'}`;
     };
 
     const getLabelClass = () => {
@@ -204,7 +204,7 @@ const StartupProfileForm = () => {
                 )}
 
                 {/* Page Header */}
-                <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="mb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <h1 className={getTitleClass()}>
                             {isEditing ? "Edit Startup Profile" : "Create Startup Opportunity"}
@@ -223,151 +223,159 @@ const StartupProfileForm = () => {
                 </div>
 
                 {/* Form Wrapper */}
-                <form onSubmit={handleSubmitClick}>
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <form onSubmit={handleSubmitClick} className="max-w-3xl mx-auto">
+                    <div className={`p-4 md:p-8 rounded-[2.5rem] border space-y-6 ${theme === 'gravity' ? 'bg-white/5 backdrop-blur-2xl border-white/10 shadow-2xl' : 'bg-white shadow-xl border-gray-100'}`}>
                         
-                        {/* Left Column: Categorization (Pill Selectors) */}
-                        <div className={`lg:col-span-5 space-y-8 p-6 md:p-8 rounded-[2.5rem] border ${theme === 'gravity' ? 'bg-white/5 backdrop-blur-2xl border-white/10 shadow-2xl' : 'bg-white shadow-xl border-gray-100'}`}>
-                            <div className="flex items-center gap-3 mb-2">
+                        {/* Section 1: Categorization */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 mb-4">
                                 <div className={`w-1.5 h-6 rounded-full ${theme === 'gravity' ? 'bg-purple-500' : 'bg-orange-500'}`} />
                                 <h2 className="text-xl font-bold tracking-tight">Categorization</h2>
                             </div>
 
-                            {/* Category Pill Selector */}
-                            <div>
-                                <label className={getLabelClass()}>Business Category <span className="text-red-500">*</span></label>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {categories.map(c => (
-                                        <button
-                                            key={c}
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, category: c }))}
-                                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
-                                                formData.category === c
-                                                ? (theme === 'gravity' ? 'bg-purple-600 text-white border-purple-500 shadow-[0_0_15px_rgba(124,58,237,0.4)]' : 'bg-orange-500 text-white border-orange-500 shadow-md')
-                                                : (theme === 'gravity' ? 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100')
-                                            }`}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Category Dropdown */}
+                                <div className="space-y-2">
+                                    <label className={getLabelClass()}>Business Category <span className="text-red-500">*</span></label>
+                                    <div className="relative group">
+                                        <select
+                                            name="category"
+                                            value={formData.category}
+                                            onChange={handleChange}
+                                            className={getSelectClass(errors.category)}
                                         >
-                                            {c}
-                                        </button>
-                                    ))}
+                                            <option value="" disabled className={theme === 'gravity' ? 'bg-[#0a0a1a] text-gray-500' : ''}>Select category...</option>
+                                            {categories.map(c => (
+                                                <option key={c} value={c} className={theme === 'gravity' ? 'bg-[#0a0a1a] text-white' : ''}>
+                                                    {c}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                                            <RiArrowDownSLine size={20} />
+                                        </div>
+                                    </div>
+                                    {errors.category && <p className="text-[11px] font-black uppercase tracking-wider text-red-500 ml-2 animate-pulse">{errors.category}</p>}
                                 </div>
-                                {errors.category && <p className="mt-2 text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.category}</p>}
+
+                                {/* Industry Dropdown */}
+                                <div className="space-y-2">
+                                    <label className={getLabelClass()}>Target Industry <span className="text-red-500">*</span></label>
+                                    <div className="relative group">
+                                        <select
+                                            name="targetIndustry"
+                                            value={formData.targetIndustry}
+                                            onChange={handleChange}
+                                            className={getSelectClass(errors.targetIndustry)}
+                                        >
+                                            <option value="" disabled className={theme === 'gravity' ? 'bg-[#0a0a1a] text-gray-500' : ''}>Select industry...</option>
+                                            {industries.map(i => (
+                                                <option key={i} value={i} className={theme === 'gravity' ? 'bg-[#0a0a1a] text-white' : ''}>
+                                                    {i}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                                            <RiArrowDownSLine size={20} />
+                                        </div>
+                                    </div>
+                                    {errors.targetIndustry && <p className="text-[11px] font-black uppercase tracking-wider text-red-500 ml-2 animate-pulse">{errors.targetIndustry}</p>}
+                                </div>
                             </div>
 
-                            {/* Industry Pill Selector */}
-                            <div>
-                                <label className={getLabelClass()}>Target Industry <span className="text-red-500">*</span></label>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {industries.map(i => (
-                                        <button
-                                            key={i}
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, targetIndustry: i }))}
-                                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
-                                                formData.targetIndustry === i
-                                                ? (theme === 'gravity' ? 'bg-purple-600 text-white border-purple-500 shadow-[0_0_15px_rgba(124,58,237,0.4)]' : 'bg-orange-500 text-white border-orange-500 shadow-md')
-                                                : (theme === 'gravity' ? 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100')
-                                            }`}
-                                        >
-                                            {i}
-                                        </button>
-                                    ))}
-                                </div>
-                                {errors.targetIndustry && <p className="mt-2 text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.targetIndustry}</p>}
-                            </div>
-
-                            {/* Stage Pill Selector */}
-                            <div>
+                            {/* Stage Dropdown */}
+                            <div className="space-y-2">
                                 <label className={getLabelClass()}>Preferred Stage <span className="text-red-500">*</span></label>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {stages.map(s => (
-                                        <button
-                                            key={s}
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, preferredStage: s }))}
-                                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border capitalize ${
-                                                formData.preferredStage === s
-                                                ? (theme === 'gravity' ? 'bg-purple-600 text-white border-purple-500 shadow-[0_0_15px_rgba(124,58,237,0.4)]' : 'bg-orange-500 text-white border-orange-500 shadow-md')
-                                                : (theme === 'gravity' ? 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100')
-                                            }`}
-                                        >
-                                            {s}
-                                        </button>
-                                    ))}
+                                <div className="relative group">
+                                    <select
+                                        name="preferredStage"
+                                        value={formData.preferredStage}
+                                        onChange={handleChange}
+                                        className={getSelectClass(errors.preferredStage)}
+                                    >
+                                        <option value="" disabled className={theme === 'gravity' ? 'bg-[#0a0a1a] text-gray-500' : ''}>Select a stage...</option>
+                                        {stages.map(s => (
+                                            <option key={s} value={s} className={`capitalize ${theme === 'gravity' ? 'bg-[#0a0a1a] text-white' : ''}`}>
+                                                {s}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
+                                        <RiArrowDownSLine size={20} />
+                                    </div>
                                 </div>
-                                {errors.preferredStage && <p className="mt-2 text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.preferredStage}</p>}
+                                {errors.preferredStage && <p className="text-[11px] font-black uppercase tracking-wider text-red-500 ml-2 animate-pulse">{errors.preferredStage}</p>}
                             </div>
                         </div>
 
-                        {/* Right Column: Financials & Description */}
-                        <div className="lg:col-span-7 flex flex-col gap-8">
-                            
-                            <div className={`p-6 md:p-8 rounded-[2.5rem] border flex-1 space-y-6 ${theme === 'gravity' ? 'bg-white/5 backdrop-blur-2xl border-white/10 shadow-2xl' : 'bg-white shadow-xl border-gray-100'}`}>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className={`w-1.5 h-6 rounded-full ${theme === 'gravity' ? 'bg-purple-500' : 'bg-orange-500'}`} />
-                                    <h2 className="text-xl font-bold tracking-tight">Financials & Details</h2>
-                                </div>
+                        {/* Divider */}
+                        <div className={`h-px w-full ${theme === 'gravity' ? 'bg-white/10' : 'bg-gray-100'}`} />
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    <Input
-                                        label="Funding Limit (₹)"
-                                        name="fundingLimit"
-                                        type="number"
-                                        min="0"
-                                        value={formData.fundingLimit}
-                                        onChange={handleChange}
-                                        error={errors.fundingLimit}
-                                        placeholder="e.g. 500000"
-                                    />
-                                    <Input
-                                        label="Avg. Equity Expectation (%)"
-                                        name="avgEquityExpectation"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={formData.avgEquityExpectation}
-                                        onChange={handleChange}
-                                        error={errors.avgEquityExpectation}
-                                        placeholder="e.g. 10"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className={getLabelClass()}>Detailed Description <span className="text-red-500">*</span></label>
-                                    <textarea
-                                        name="description"
-                                        rows="5"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        placeholder="What kind of startup are you looking to fund? Outline your expectations..."
-                                        className={getTextAreaClass(errors.description)}
-                                    />
-                                    <div className="flex justify-between mt-2 ml-1">
-                                        {errors.description ? (
-                                            <p className="text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.description}</p>
-                                        ) : (
-                                            <p className={`text-xs font-bold ${theme === 'gravity' ? 'text-gray-500' : 'text-gray-400'}`}>Min 20 characters, Max 500.</p>
-                                        )}
-                                        <span className={`text-xs font-black ${formData.description.length > 500 ? 'text-red-500' : (theme === 'gravity' ? 'text-gray-500' : 'text-gray-400')}`}>
-                                            {formData.description.length}/500
-                                        </span>
-                                    </div>
-                                </div>
+                        {/* Section 2: Financials & Description */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className={`w-1.5 h-6 rounded-full ${theme === 'gravity' ? 'bg-purple-500' : 'bg-orange-500'}`} />
+                                <h2 className="text-xl font-bold tracking-tight">Financials & Details</h2>
                             </div>
 
-                            {/* Submit Actions */}
-                            <div className={`p-6 rounded-[2rem] border ${theme === 'gravity' ? 'bg-white/5 border-white/10 shadow-xl' : 'bg-white shadow-xl'}`}>
-                                <Button
-                                    text={isEditing ? "Save Changes" : "Publish Opportunity"}
-                                    type="submit"
-                                    className={`w-full py-4 rounded-2xl text-lg font-black tracking-tight transition-all active:scale-[0.98] ${
-                                        theme === 'gravity' 
-                                        ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_10px_30px_rgba(124,58,237,0.4)] border-t border-white/20' 
-                                        : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg'
-                                    }`}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <Input
+                                    label="Funding Limit (₹)"
+                                    name="fundingLimit"
+                                    type="number"
+                                    min="0"
+                                    value={formData.fundingLimit}
+                                    onChange={handleChange}
+                                    error={errors.fundingLimit}
+                                    placeholder="e.g. 500000"
+                                />
+                                <Input
+                                    label="Avg. Equity Expectation (%)"
+                                    name="avgEquityExpectation"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={formData.avgEquityExpectation}
+                                    onChange={handleChange}
+                                    error={errors.avgEquityExpectation}
+                                    placeholder="e.g. 10"
                                 />
                             </div>
+
+                            <div>
+                                <label className={getLabelClass()}>Detailed Description <span className="text-red-500">*</span></label>
+                                <textarea
+                                    name="description"
+                                    rows="4"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    placeholder="What kind of startup are you looking to fund? Outline your expectations..."
+                                    className={getTextAreaClass(errors.description)}
+                                />
+                                <div className="flex justify-between mt-2 ml-1">
+                                    {errors.description ? (
+                                        <p className="text-[11px] font-black uppercase tracking-wider text-red-500 animate-pulse">{errors.description}</p>
+                                    ) : (
+                                        <p className={`text-xs font-bold ${theme === 'gravity' ? 'text-gray-500' : 'text-gray-400'}`}>Min 20 characters, Max 500.</p>
+                                    )}
+                                    <span className={`text-xs font-black ${formData.description.length > 500 ? 'text-red-500' : (theme === 'gravity' ? 'text-gray-500' : 'text-gray-400')}`}>
+                                        {formData.description.length}/500
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Submit Action */}
+                        <div className="pt-4">
+                            <Button
+                                text={isEditing ? "Save Changes" : "Publish Opportunity"}
+                                type="submit"
+                                className={`w-full py-4 rounded-2xl text-lg font-black tracking-tight transition-all active:scale-[0.98] ${
+                                    theme === 'gravity' 
+                                    ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_10px_30px_rgba(124,58,237,0.4)] border-t border-white/20' 
+                                    : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg'
+                                }`}
+                            />
                         </div>
                     </div>
                 </form>
